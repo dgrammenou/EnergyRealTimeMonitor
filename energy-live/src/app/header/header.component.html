@@ -1,0 +1,32 @@
+<nav class="navbar fixed-top sticky-top navbar-expand-lg header row" *ngIf="(loggingService.user | async) !== null">
+    <div class="d-flex justify-content-around">
+        <div class="left">
+            <a class="navbar-brand font-weight-bold mx-3">EnergyLive 2022</a>
+        </div>
+        <div class="middle">
+            <!-- <input type="text" id="search" [(ngModel)]="search" (keydown.enter)="onNavigate('search')">
+            <button class="btn button-primary"  (click)="onNavigate('search')"> 
+                <app-icon icon='search'></app-icon> 
+            </button>   -->
+        </div>
+        <div class="right d-flex justify-content-center">  
+            <div *ngIf="loggingService.user | async as user else profile"> 
+                <div *ngIf="user.hasOwnProperty('email');">
+                    <button class="btn" (click)="onNavigate('login')">
+                        <img 
+                            class="rounded-circle" 
+                            src="{{user.photoUrl}}" 
+                            width="30" 
+                            height="30"                    
+                        >
+                    </button>
+                </div>
+            </div>  
+            <ng-template #profile>
+                <button class="btn" (click)="onNavigate('login')">
+                    <app-icon icon="user-black"></app-icon>
+                </button>
+            </ng-template> 
+        </div>
+    </div> 
+</nav>  
