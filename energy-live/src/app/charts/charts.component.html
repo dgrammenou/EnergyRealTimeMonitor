@@ -7,12 +7,19 @@
         
         <ngb-datepicker #dp [(ngModel)]="model" (navigate)="date = $event.next"></ngb-datepicker>
         
-        <hr/> 
-        
-        <pre>Month: {{ date.month }}.{{ date.year }}</pre>
-        <pre>Model: {{ model | json }}</pre>
+        <hr/>  
+    
+        <div ngbDropdown class="d-inline-block">
+            <button type="button" class="btn btn-outline-primary" id="dropdownBasic1" ngbDropdownToggle>{{option}}</button>
+            <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                <button ngbDropdownItem *ngFor="let option of options; let i=index" (click)="onChooseOption(i)">{{option}}</button> 
+            </div>
+        </div>
     </div>
-    <div class="chart">
-        this is chart area
+    <div class="chart bg-primary">
+        <div class=""  *ngIf="index >= 0">
+            <div class="header">{{option}}</div>
+        </div>
+        
     </div>
 </div>
