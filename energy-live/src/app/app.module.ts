@@ -12,6 +12,7 @@ import { IconsModule } from './icons/icons.module';
 import { ChartsComponent } from './charts/charts.component';
 import { ProfileComponent } from './profile/profile.component'; 
 import { JwtModule } from '@auth0/angular-jwt';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,8 @@ import { JwtModule } from '@auth0/angular-jwt';
     IconsModule, 
     ReactiveFormsModule,
     SocialLoginModule,
+    NgbModule,
+    NgbModule
   ],
   
   providers: [
