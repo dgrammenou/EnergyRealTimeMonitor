@@ -4,12 +4,26 @@
         <label>First Name</label>
         <input type="text" class="form-control" [value]="socialUser?.firstName" id="firstname" readonly>
     </div>
-    <div class="form-group">
+    <div class="form-group my-2">
         <label>Last Name</label>
         <input type="text" class="form-control" [value]="socialUser?.lastName" id="lastname" readonly>
     </div>
-    <div class="form-group">
+    <div class="form-group my-2">
         <label>Email</label>
         <input type="text" class="form-control" [value]="socialUser?.email" id="email" readonly>
     </div> 
+
+    <div class="form-group my-4 flex d-flex justify-content-between border px-3 py-3" style="background-color: rgb(184, 184, 194)">
+        <div>
+            Days Left: <input class="mx-3" type="number" [(ngModel)]="daysLeft">
+        </div>      
+        <div>
+            Extend By (days): <input class="mx-3" type="number" [(ngModel)]="extendDays">
+        </div>  
+    </div>
+    <div class="buttons d-flex justify-content-center my-2" style="gap: 1rem" *ngIf="extendDays > 0">
+        <button class="btn btn-primary px-4 py-2" (click)="onSave()">Save</button> 
+        <button class="btn btn-danger px-4 py-2" (click)="onCancel()">Cancel</button>
+    </div>
+     
 </div>

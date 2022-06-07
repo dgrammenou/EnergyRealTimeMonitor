@@ -11,6 +11,9 @@ import { LoggingService } from '../services/logging.service';
 export class ProfileComponent implements OnInit {
   socialUser!: SocialUser;
   isLoggedin : boolean = false;
+
+  daysLeft = 15;
+  extendDays = 0;
   
   constructor(public loggingService: LoggingService, private router: Router) { }
 
@@ -32,5 +35,13 @@ export class ProfileComponent implements OnInit {
     this.loggingService.signOut(); 
     this.router.navigate(['/']);
   } 
+
+  onCancel() {
+    this.extendDays = 0;
+  }
+
+  onSave() {
+    // todo: save on db
+  }
 
 }
