@@ -1,4 +1,7 @@
+import { SocialUser } from '@abacritt/angularx-social-login';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { LoggingService } from '../services/logging.service';
 
 @Component({
   selector: 'app-profile',
@@ -6,10 +9,28 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
-
-  constructor() { }
+  socialUser!: SocialUser;
+  isLoggedin : boolean = false;
+  
+  constructor(public loggingService: LoggingService, private router: Router) { }
 
   ngOnInit(): void {
+
+    this.loggingService.user.subscribe((user) => {
+      if (user && Object.keys(user).length === 0) {
+
+      } else {
+        if (user !== null) {
+          this.socialUser = user;
+        }
+  
+        this.isLoggedin = user != null;
+      }  
+    });
   }
+  logOut(): void {
+    this.loggingService.signOut(); 
+    this.router.navigate(['/']);
+  } 
 
 }

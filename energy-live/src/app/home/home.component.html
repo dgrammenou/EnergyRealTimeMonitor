@@ -7,61 +7,12 @@
         <!-- login -->
         <div class="d-flex justify-content-center">
             <div>
-                <h2 class="text-center mb-5">Sign in with Google</h2>
                 <div class="d-flex justify-content-center" *ngIf="isLoggedin === false">
-                    <button type="button" (click)="loginWithGoogle()" class="btn btn-danger">Login with Google</button>
+                    <button type="button" (click)="loginWithGoogle()" class="btn btn-danger">Sign in with Google</button>
                 </div>
     
-                <!-- <div *ngIf="isLoggedin === true">
-                    <div class="form-group">
-                        <label>First Name</label>
-                        <input type="text" class="form-control" [value]="socialUser?.firstName" id="firstname" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label>Last Name</label>
-                        <input type="text" class="form-control" [value]="socialUser?.lastName" id="lastname" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="text" class="form-control" [value]="socialUser?.email" id="email" readonly>
-                    </div>
-                    <button type="button" (click)="logOut()" class="btn btn-primary">Log Out</button>
-                </div> -->
             </div>
             
         </div>
     </div> 
-</div>
-<!-- <div class="container">
-    <div class="greetings d-flex justify-content-center">
-        <div class="flex my-3">
-            <h3 class="d-flex justify-content-center">Καλώς ήρθατε στο bestcart! </h3>
-            <p>Σκοπός της εφαρμογής είναι η διευκόλυνση των αγορών μας για τα supermarket μέσω σύγκρισης των διαφόρων προϊόντων.</p>    
-            <p>Πρέπει όμως να προσέχουμε καθώς οι τιμές στα eshops των supermarkets αλλάζουν συνεχώς.</p>    
-            <p>Προς το παρόν μπορούμε να βλέπουμε για τα προιόντα τόσο του AB όσο και του Sklaveniti και να τοποθετούμε σε προσωπικό καλάθι αυτά που προτιμάμε.</p>
-            <p>Να σημειωθεί πως ούτε τα προιόντα, ούτε οι εικόνες, ούτε οι τιμές μου ανήκουν. Οι τιμές θα ανανεώνονται συστηματικά για την αποτελεσματικότερη εύρεση των προσφορών.</p>
-            <p>Τέλος, όλες οι πληροφορίες που σώζονται στο καλάθι μένουν μόνο στο local Storage του browser που χρησιμοποιείται.</p>
-        </div>
-    </div>
-    <br>
-  
-    <h5 class="d-flex justify-content-center">Κατηγορίες</h5>
-    <div class="categories d-flex justify-content-center flex-wrap">
-        <div 
-            class="card mx-3 my-3" 
-            *ngFor="let category of dataService.categories" 
-            style="width: 20rem; height: 11rem;"
-            (click)="onCategoryClick(category[0])" 
-        >
-            <div class="flex d-flex justify-content-center shadow-none w-100 h-100 bg-light rounded">
-                <div class="p-2">
-                    {{category[0]}}
-                </div>
-                <div class="p-2" style="min-width: 5rem; max-width: 5rem; min-height:4rem; max-height: 4rem">
-                    <app-icon icon="{{category[1]}}"></app-icon>
-                </div>
-            </div>     
-        </div>
-    </div>
-</div>
-  -->
+</div> 

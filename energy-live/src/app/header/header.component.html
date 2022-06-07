@@ -1,18 +1,14 @@
 <nav class="navbar fixed-top sticky-top navbar-expand-lg header row" *ngIf="(loggingService.user | async) !== null">
     <div class="d-flex justify-content-around">
         <div class="left">
-            <a class="navbar-brand font-weight-bold mx-3">EnergyLive 2022</a>
+            <a class="navbar-brand font-weight-bold mx-3" (click)="onNavigate('charts')">EnergyLive 2022</a>
         </div>
-        <div class="middle">
-            <!-- <input type="text" id="search" [(ngModel)]="search" (keydown.enter)="onNavigate('search')">
-            <button class="btn button-primary"  (click)="onNavigate('search')"> 
-                <app-icon icon='search'></app-icon> 
-            </button>   -->
+        <div class="middle"> 
         </div>
         <div class="right d-flex justify-content-center">  
             <div *ngIf="loggingService.user | async as user else profile"> 
                 <div *ngIf="user.hasOwnProperty('email');">
-                    <button class="btn" (click)="onNavigate('login')">
+                    <button class="btn" (click)="onNavigate('profile')">
                         <img 
                             class="rounded-circle" 
                             src="{{user.photoUrl}}" 
@@ -23,10 +19,14 @@
                 </div>
             </div>  
             <ng-template #profile>
-                <button class="btn" (click)="onNavigate('login')">
+                <button class="btn" (click)="onNavigate('profile')">
                     <app-icon icon="user-black"></app-icon>
                 </button>
             </ng-template> 
+            <button class="btn" (click)="onNavigate('sign-out')">
+                <app-icon icon="sign-out.svg"></app-icon>
+            </button>
+            
         </div>
     </div> 
 </nav>  

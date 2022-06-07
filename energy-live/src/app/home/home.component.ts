@@ -37,13 +37,13 @@ export class HomeComponent implements OnInit {
         this.isLoggedin = user != null;
       } 
       
+      if (user !== null) {
+        this.router.navigate(['charts'])
+      }
     });
   }
   loginWithGoogle(): void {
-    this.loggingService.googleLogin(); 
-    if (this.socialUser != null) {
-      this.router.navigate(['charts'])
-    }
+    this.loggingService.googleLogin();  
   }
   logOut(): void {
     this.loggingService.signOut(); 

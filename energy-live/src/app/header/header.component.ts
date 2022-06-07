@@ -28,20 +28,14 @@ export class HeaderComponent implements OnInit {
     if (input === 'main') {
       this.router.navigate(['']);
       this.search = '';
-    } else if (input === 'cart') {
-      this.router.navigate(['cart']);  
-      this.search = '';
-    } else if (input === 'search' && this.search.length > 0) {
-      this.router.navigate(['search'],
-        { 
-          queryParams: {
-            'search': this.search,
-            'page': 1
-          }, 
-        }
-      );
-    } else if (input === 'login') {
-      this.router.navigate(['login']);
+    } else if (input == 'charts') {
+      this.router.navigate(['charts']);
+    }
+    else if (input === 'profile') {
+      this.router.navigate(['profile']);
+    } else if (input == 'sign-out') {
+      this.loggingService.signOut();
+      this.router.navigate(['/']);
     }
 
   }
