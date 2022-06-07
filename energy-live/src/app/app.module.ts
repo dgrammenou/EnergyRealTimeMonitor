@@ -11,6 +11,7 @@ import { HomeComponent } from './home/home.component';
 import { IconsModule } from './icons/icons.module';
 import { ChartsComponent } from './charts/charts.component';
 import { ProfileComponent } from './profile/profile.component'; 
+import { JwtModule } from '@auth0/angular-jwt';
 
 @NgModule({
   declarations: [

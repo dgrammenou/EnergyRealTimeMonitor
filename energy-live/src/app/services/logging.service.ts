@@ -1,6 +1,7 @@
 import { Injectable, OnInit } from "@angular/core";
 import { GoogleLoginProvider, SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
 import { BehaviorSubject, Observable } from "rxjs";
+import { JwtHelperService } from "@auth0/angular-jwt";
 
 @Injectable({providedIn: 'root'})
 export class LoggingService{
@@ -19,7 +20,12 @@ export class LoggingService{
             console.log("login constructor", reason);
         }); 
     }  
-    
+
+    refreshAuthToken() {
+        this.socialAuthService.refreshAuthToken(GoogleLoginProvider.PROVIDER_ID).catch((reason: any) => {
+            console.log("login constructor", reason);
+        }); 
+    }
     googleLogin() { 
         this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID).catch((reason: any) => {
             console.log("login", reason);
