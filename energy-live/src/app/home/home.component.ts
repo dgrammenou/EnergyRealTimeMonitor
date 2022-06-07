@@ -49,5 +49,13 @@ export class HomeComponent implements OnInit {
     this.loggingService.signOut(); 
   } 
 
- 
+  onClick(input: string): void {
+    if(input === 'about') {
+      this.router.navigate(['about']);
+    } else if (input === 'plans') {
+      this.router.navigate(['plans']);
+    } else if (input === 'legal') {
+      this.router.navigate(['legal']);
+    }
+  }
 }

@@ -13,12 +13,15 @@ import { ChartsComponent } from './charts/charts.component';
 import { ProfileComponent } from './profile/profile.component'; 
 import { JwtModule } from '@auth0/angular-jwt';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { AboutComponent } from './about/about.component';
+import { PlansComponent } from './plans/plans.component';
+import { LegalComponent } from './legal/legal.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent, 
-    HeaderComponent, ChartsComponent, ProfileComponent
+    HeaderComponent, ChartsComponent, ProfileComponent, AboutComponent, PlansComponent, LegalComponent
   ],
   imports: [
     BrowserModule,
