@@ -16,12 +16,20 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AboutComponent } from './about/about.component';
 import { PlansComponent } from './plans/plans.component';
 import { LegalComponent } from './legal/legal.component';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FileSaverModule } from 'ngx-filesaver';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent, 
-    HeaderComponent, ChartsComponent, ProfileComponent, AboutComponent, PlansComponent, LegalComponent
+    HeaderComponent, 
+    ChartsComponent, 
+    ProfileComponent, 
+    AboutComponent, 
+    PlansComponent, 
+    LegalComponent
   ],
   imports: [
     BrowserModule,
@@ -32,7 +40,9 @@ import { LegalComponent } from './legal/legal.component';
     ReactiveFormsModule,
     SocialLoginModule,
     NgbModule,
-    NgbModule
+    NgxChartsModule,
+    BrowserAnimationsModule,
+    FileSaverModule
   ],
   
   providers: [

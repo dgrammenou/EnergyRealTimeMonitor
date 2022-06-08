@@ -1,4 +1,4 @@
-<div class="d-flex justify-content-evenly my-5">
+<div class="d-flex justify-content-center my-5">
     <div class="date border px-5 py-5 ">
         <div class="mb-4">
             <button class="btn btn-sm btn-outline-primary me-2" (click)="selectToday()">Select Today</button>
@@ -16,10 +16,31 @@
             </div>
         </div>
     </div>
-    <div class="chart bg-primary">
-        <div class=""  *ngIf="index >= 0">
-            <div class="header">{{option}}</div>
+    <div class="chart mx-5" *ngIf="index >= 0">
+        <div class="items" id="chart">
+            <div class="mb-3 d-flex align-items-center justify-content-center -mx-2"> 
+                {{option}}
+            </div> 
+            <ngx-charts-line-chart
+                [view]="[500,500]"
+                [results]="saleData"
+                [xAxisLabel]="'Χρόνος'"
+                [yAxisLabel]="'Τιμή'"  
+                [showXAxisLabel]="true"
+                [showYAxisLabel]="true"
+                [xAxis]="true"
+                [yAxis]="true" 
+                *ngIf="index >= 0" 
+            >   
+            </ngx-charts-line-chart>  
+            
+            Latest Update: tade ora
+            <button class="btn btn-primary" (click)="onSaveAsPng()">Save as png</button>
+            <button class="btn btn-primary" (click)="onSaveData()">Save data</button>
         </div>
-        
+        <div class="bottom" style="position: bottom">
+            test
+        </div>
     </div>
+
 </div>
