@@ -12,13 +12,45 @@ const saveSvgAsPng = require('save-svg-as-png');
 })
 export class ChartsComponent implements OnInit, OnDestroy {
   intervalId !: any;
-  options = ["Actual Total Load", "Generation Per Type", "Cross-Border Flows"];
-  index = -1;
-  option = "Choose Quantity";
+  options = [
+    {id: 1, name: "Actual Total Load" }, 
+    {id: 2, name: "Generation Per Type" }, 
+    {id: 3, name: "Cross-Border Flows" }
+  ];
+  index!: number;
+
+  // option !: string;
   model !: NgbDateStruct;
   date !: {year: number, month: number};
   data = [1,2,3,4,5];
   saleData: any[] = [];
+
+
+  selectedCountry !: number;
+
+  countries = [ 
+    { id: 1, name: 'Volvo' },
+    { id: 2, name: 'Saab' },
+    { id: 3, name: 'Opel' },
+    { id: 4, name: 'Audi' },
+    { id: 5, name: 'Volvo' },
+    { id: 6, name: 'Saab' },
+    { id: 7, name: 'Opel' },
+    { id: 8, name: 'Audi' },
+    { id: 9, name: 'Volvo' },
+    { id: 10, name: 'Saab' },
+    { id: 11, name: 'Opel' },
+    { id: 12, name: 'Audi' },
+  ];
+
+  selectedGenerationType !: number;
+  generationTypes = [
+    { id: 1, name: "Natural Gas"},
+  ];
+
+  selectedCountryFrom !: number;
+  selectedCountryTo !: number;
+
 
   constructor(private calendar: NgbCalendar, private fileSaverService: FileSaverService) {
     this.selectToday();
@@ -32,7 +64,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
     } 
     this.saleData = [
       {
-        "name": this.option, 
+        "name": "test name", 
         "series": data_graph
       }, 
     ];
@@ -62,7 +94,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
 
   onChooseOption(idx: number) {
     this.index = idx;
-    this.option = this.options[idx];
+    // this.option = this.options[+idx].name;
   }
 
   onSaveAsPng() {
@@ -70,7 +102,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
     svg.style.backgroundColor = '#fff';
     // saveSvgAsPng.saveSvgAsPng(svg, "chart.png"); 
     let blob = new Blob([svg.outerHTML]);
-    this.fileSaverService.save(blob, 'data.svg');
+    this.fileSaverService.save(blob, 'data.svg'); 
   }
 
   onSaveData() { 

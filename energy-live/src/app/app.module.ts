@@ -19,6 +19,7 @@ import { LegalComponent } from './legal/legal.component';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FileSaverModule } from 'ngx-filesaver';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @NgModule({
   declarations: [
@@ -42,7 +43,8 @@ import { FileSaverModule } from 'ngx-filesaver';
     NgbModule,
     NgxChartsModule,
     BrowserAnimationsModule,
-    FileSaverModule
+    FileSaverModule,
+    NgSelectModule
   ],
   
   providers: [

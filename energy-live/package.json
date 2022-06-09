@@ -23,6 +23,7 @@
     "@angular/router": "~13.3.0",
     "@auth0/angular-jwt": "^5.0.2",
     "@ng-bootstrap/ng-bootstrap": "^12.1.2",
+    "@ng-select/ng-select": "^8.3.0",
     "@popperjs/core": "^2.10.2",
     "@swimlane/ngx-charts": "^20.1.0",
     "bootstrap": "^5.1.3",
