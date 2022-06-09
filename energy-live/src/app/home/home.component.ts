@@ -1,8 +1,7 @@
 import { SocialUser } from '@abacritt/angularx-social-login';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { CartService } from '../services/cart.service';
+import { Router } from '@angular/router'; 
 import { DataService } from '../services/data.service';
 import { LoggingService } from '../services/logging.service';
 
@@ -18,8 +17,7 @@ export class HomeComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder, 
     public loggingService: LoggingService,
-    private router: Router,
-    public cartService: CartService, 
+    private router: Router, 
   ) {}
   ngOnInit() { 
     this.loginForm = this.formBuilder.group({

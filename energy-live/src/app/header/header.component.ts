@@ -1,8 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
-import { CartService } from '../services/cart.service';
-import { LoggingService } from '../services/logging.service';
-import { ProductDto } from '../services/product.dto';
+import { Router } from '@angular/router'; 
+import { LoggingService } from '../services/logging.service'; 
 
 @Component({
   selector: 'app-header',
@@ -13,8 +11,7 @@ export class HeaderComponent implements OnInit {
   search !: string;
   
   constructor(
-    private router: Router,
-    public cartService: CartService,
+    private router: Router, 
     public loggingService: LoggingService
   ) { }
 
