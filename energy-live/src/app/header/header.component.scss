@@ -1,0 +1,119 @@
+.header {
+    background-color: rgb(227, 231, 243);
+    color: rgb(24, 22, 22);
+    display: flex;    
+    height: 3rem;
+    align-items: stretch;
+    position: sticky;
+    top:0;
+    // justify-content: space-around;
+    margin-bottom: 10px;
+    height: 55px;
+}
+input[type=text] {  
+    padding-left: 1rem;
+    padding-right: 1rem;
+    box-sizing: border-box; 
+    border-radius: 10px;
+    outline: none;
+
+    height: 40px;
+}
+input[type=text]:hover {
+    border: 1px solid rgb(11, 199, 4);
+}
+input[type=text]:focus {
+    border: 2px solid rgb(10, 151, 5);
+}
+
+button { 
+    // margin-top: -17px;
+    height: 40px;
+}
+button:hover {
+    border: 1px solid rgb(93, 93, 255);
+}
+
+.column { 
+    font-size: 1rem;
+    text-align: center;
+    align-items: center;
+}
+
+.company {
+    margin-top: 0.5rem;
+    font-weight: bold;
+    text-align: center;
+    align-items: center;
+    padding-left: 10px;     
+} 
+
+.rest {
+    height: 1rem;       
+}
+.cart {
+    top: 0;
+    margin-top: -0.7rem;
+    margin-left: -0.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+}
+.counter { 
+    margin-top: -0.5rem;
+}
+
+.search {
+    display: flex;
+}
+ 
+
+@media screen and (max-width: 415px)  {
+    input {
+        width: 40px; 
+        height: 35px; 
+    } 
+    
+}
+
+@media screen and (max-width: 600px) and (min-width: 415px) {
+    input {
+        width: 150px; 
+        height: 35px; 
+    } 
+    
+}
+
+@media screen and (max-width: 800px) and (min-width: 600px) {
+    input {
+        width: 240px; 
+        height: 35px; 
+    } 
+    
+}
+@media screen and (max-width: 1000px) and (min-width: 800px) {
+    input {
+        width: 340px; 
+        height: 35px;
+    }
+}
+
+@media screen and (max-width: 1200px) and (min-width: 1000px) {
+    input {
+        width: 400px; 
+        height: 35px;
+    }
+}
+
+@media screen and (max-width: 1500px) and (min-width: 1200px) {
+    input {
+        width: 450px; 
+        height: 35px;
+    }
+}
+
+@media screen and (min-width: 1500px) {
+    input {
+        width: 500px; 
+        height: 35px;
+    }
+}
