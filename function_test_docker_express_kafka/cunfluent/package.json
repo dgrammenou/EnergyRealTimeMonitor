@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "express": "^4.18.1",
+    "kafkacat": "^0.0.3",
+    "kafkajs": "^2.0.1"
+  }
+}
