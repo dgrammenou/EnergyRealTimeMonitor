@@ -67,11 +67,12 @@ var importCSVtoDB = () => {
 		//update display to get the data on end of import to DB
 		//the code bellow should be inside of end of import to DB
 		//------------------------------------------------------
-		const result = await producer.send({
+		const result = producer.send({
 			topic: "phf",
 			//replyId: replyId,
 			messages: [{
-				"value": /*MESSAGE TO BE SENT*/ 
+				"value": "MESSAGE TO BE SENT",
+				"data": [] 
 				
 			}]
 		});
@@ -96,7 +97,7 @@ app.get("/getData/:country/:dataFrom/:dataTo", (req, res, next) => {
 	 *
 	 */ 
 
-}
+});
 
 app.get("/newData", (req, res, next) => {
 	
@@ -106,7 +107,7 @@ app.get("/newData", (req, res, next) => {
 	 *	CODE HERE MUST SEND THE DATA THAT JUST IMPORTED TO DB 
 	 *
 	 */ 
-}	
+});	
 
 
 app.get("/getIniData/:country", (req, res, next) => {
@@ -118,12 +119,12 @@ app.get("/getIniData/:country", (req, res, next) => {
 	 *
 	 */ 
 
-}	
+});	
 
 app.get("/healthCheck", (req, res, next) => {
 	res.status(200).send("I am healthy");
-}	
+});	
 
-var app = express();app.listen(8080, () => {
-	console.log("Server running on port 3000");
+app.listen(8080, () => {
+	console.log("Server running on port 8080");
 });

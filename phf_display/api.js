@@ -38,26 +38,50 @@ console.log("Producer Connected!");
 
 
 //res.status(200).send(value[0]);
+
+//consumer code
+//----------------------------------
+consumer.run({
+	//console.log("In consumer run\n")
+	eachMessage: ({ topic, partition, message }) => /*res.send({ "topic":topic, "partiotion":partition, "message":message })}*/ {
+		//heartbeat();
+		console.log('Received message', {
+			topic,
+			partition,
+			//key: message.key.toString(),
+			value: message.value.toString()
+		});
+		data = {
+			"topic": topic,
+			//"message": rq.params.message,
+			"partition": parseInt(partition),
+			"message in ascii": message.value.toString()
+		};
+		
+	}
+});
+//----------------------------------
+
 app.get("/getData/:country/:dataFrom/:dateTo", (res, req, error) => {
 	
 
-}
+});
 
 
 app.get("/getIniData", (req, res, next) => {
 
 
-}
+});
 
 app.get("/getNewData", (req, res, next) => {
 
 
-}
+});
 
 app.get("/healthCheck", (req, res, next) => {
         res.status(200).send("I am healthy");
-} 
+});
 
-var app = express();app.listen(7080, () => {
- console.log("Server running on port 3000");
+app.listen(7080, () => {
+ console.log("Server running on port 7080");
 });
