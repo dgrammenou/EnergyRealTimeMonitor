@@ -1,27 +1,40 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { environment } from "src/environments/environment";  
+import { ChartDto } from "./chart.dto";
+import { ActualTotalLoad, CrossBoarderFlow, GenerationPerType } from "./charts.model";
+
+ 
 
 @Injectable({providedIn: 'root'})
-export class DataService {
-    superMarkets = ["AB", "Sklavenitis", "My Market", "Kritikos"];
-    categories = [
-        ["Φρούτα & Λαχανικά", "fruits"],
-        ["Κρέας & Ψάρια", "meat"],
-        ["Ψυγείου & Αλλαντικά", "fridge"],
-        ["Είδη Αρτοζαχαροπλαστείου", "daily-bread"],
-        ["Έτοιμα Γεύματα", "Food_Truck"],
-        ["Κατοικίδια", "dog"],
-        ["Προσωπική Περιποίηση", "personal-care"],
-        ["Καθαριστικά", "clean-spray"],
-        ["Snacks & Ροφήματα & Ποτά", "coffee-snacks"],
-        ["Κατεψυγμένα", "ice-cube"],
-        ["Για το μωρό", "biberon"],
-        ["Λοιπά", "store"],
-    ];
+export class DataService { 
     
     constructor(private httpClient: HttpClient){}
 
+    dataActualTotalLoad(data: ActualTotalLoad) {
+        let params = new HttpParams();
+        params.set('date', data.date.getFullYear() + "-" + data.date.getMonth() + "-" + data.date.getDay());
+        params.set('country', data.country);
+
+        return this.httpClient.get<ChartDto>('http://localhost:7080/api/Data', {params}); 
+    }
+    dataGenerationPerType(data: GenerationPerType) {
+        let params = new HttpParams();
+        params.set('date', data.date.getFullYear() + "-" + data.date.getMonth() + "-" + data.date.getDay());
+        params.set('country', data.country);
+        params.set('generationType', data.generationType);
+
+        return this.httpClient.get<ChartDto>('http://localhost:7081/api/Data', {params});         
+    }
+    dataCrossBoarderFlow(data: CrossBoarderFlow) {
+        let params = new HttpParams();
+        params.set('date', data.date.getFullYear() + "-" + data.date.getMonth() + "-" + data.date.getDay());
+        params.set('countryFrom', data.countryFrom);
+        params.set('countryTo', data.countryTo);
+
+        return this.httpClient.get<ChartDto>('http://localhost:7082/api/Data', {params});  
+        
+    }
     // search(search: string, page: number) {
     //     let params = new HttpParams();
     //     params = params.set('search', search);

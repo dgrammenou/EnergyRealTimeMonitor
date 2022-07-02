@@ -1,6 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgbCalendar, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap'; 
 import { FileSaverService } from "ngx-filesaver";
+import { take } from 'rxjs';
+import { ChartDataDto, ChartDto } from '../services/chart.dto';
+import { DataService } from '../services/data.service';
 // import { saveSvgAsPng } from "save-svg-as-png";
 const saveSvgAsPng = require('save-svg-as-png');
 // import { sav}
@@ -12,6 +15,9 @@ const saveSvgAsPng = require('save-svg-as-png');
 })
 export class ChartsComponent implements OnInit, OnDestroy {
   intervalId !: any;
+
+  dataFullForGraph = false;
+
   options = [
     {id: 1, name: "Actual Total Load" }, 
     {id: 2, name: "Generation Per Type" }, 
@@ -23,7 +29,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
   model !: NgbDateStruct;
   date !: {year: number, month: number};
   data = [1,2,3,4,5];
-  saleData: any[] = [];
+  saleData: ChartDto[] = [];
 
 
   selectedCountry !: number;
@@ -52,13 +58,17 @@ export class ChartsComponent implements OnInit, OnDestroy {
   selectedCountryTo !: number;
 
 
-  constructor(private calendar: NgbCalendar, private fileSaverService: FileSaverService) {
+  constructor(
+    private calendar: NgbCalendar, 
+    private fileSaverService: FileSaverService,
+    private dataService: DataService
+  ) {
     this.selectToday();
     
-    let data_graph = [];
+    let data_graph: ChartDataDto[] = [];
     for (var i = 0; i < this.data.length; i++) {
       data_graph.push({
-        "name": i+1,
+        "name": (i+1).toString(),
         "value": this.data[i]
       }) 
     } 
@@ -68,19 +78,16 @@ export class ChartsComponent implements OnInit, OnDestroy {
         "series": data_graph
       }, 
     ];
-
-    setInterval(() => {
-
-    })
+ 
   }
 
   ngOnInit(): void {
     
     this.intervalId = setInterval(() => {
-      if (this.index >= 0) {
-        // update data
+      if (this.dataFullForGraph) {
+        this.dataFullForGraph = this.isDataFull();
       }
-    }, 5000);
+    }, 10000);
   }
   ngOnDestroy(): void { 
     if (this.intervalId) {
@@ -119,5 +126,58 @@ export class ChartsComponent implements OnInit, OnDestroy {
     let blob = new Blob(data);
     
     this.fileSaverService.save(blob, 'data.txt');
+  }
+  onChangeQuantity(event: any) {
+    this.dataFullForGraph = this.isDataFull();
+  }
+
+  onActualTotalLoadChange(event: any) {
+    this.dataFullForGraph = this.isDataFull();
+  }
+
+  onGenerationPerTypeChange(event: any) {
+    this.dataFullForGraph = this.isDataFull();
+  }
+
+  onCrossBoarderFlowChange(event: any) {
+    this.dataFullForGraph = this.isDataFull();
+  }
+
+  private isDataFull() {
+    if (this.index === 1 && this.selectedCountry) {    
+      this.dataService.dataActualTotalLoad({
+        country: this.countries[this.selectedCountry - 1].name,
+        date: new Date(this.model.year, this.model.month, this.model.day),
+      }).pipe(take(1)).subscribe(d => {
+        this.saleData = [ d ];
+      });
+
+      return true;      
+    }
+    else if (this.index === 2 && this.selectedCountry && this.selectedGenerationType) { 
+      console.log(this.selectedCountry, this.selectedGenerationType);
+      this.dataService.dataGenerationPerType({
+        country: this.countries[this.selectedCountry - 1].name,
+        date: new Date(this.model.year, this.model.month, this.model.day),
+        generationType: this.generationTypes[this.selectedGenerationType - 1].name
+      }).pipe(take(1)).subscribe(d => {
+        this.saleData = [ d ];
+      });
+
+      return true;
+    }
+    else if (this.index === 3 && this.selectedCountryFrom && this.selectedCountryTo) {
+      this.dataService.dataCrossBoarderFlow({
+        date: new Date(this.model.year, this.model.month, this.model.day),
+        countryFrom: this.countries[this.selectedCountryFrom - 1].name,
+        countryTo: this.countries[this.selectedCountryTo - 1].name
+      }).pipe(take(1)).subscribe(d => {
+        this.saleData = [ d ];
+      });
+
+      return true;
+    }
+
+    return false;
   }
 }

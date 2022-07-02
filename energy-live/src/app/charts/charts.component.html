@@ -14,16 +14,29 @@
                 [items]="options" 
                 bindLabel="name" 
                 bindValue="id" 
-                [(ngModel)]="index">
+                [(ngModel)]="index"
+                (change)="onChangeQuantity($event)"
+            >
             </ng-select>
         </div> 
-        <div class="mt-3" *ngIf="index === 1 || index === 2"> 
+        <div class="mt-3" *ngIf="index === 1"> 
             Country
             <ng-select 
                 [items]="countries" 
                 bindLabel="name" 
                 bindValue="id" 
-                [(ngModel)]="selectedCountry">
+                [(ngModel)]="selectedCountry"
+                (change)="onActualTotalLoadChange($event)">
+            </ng-select>
+        </div>
+        <div class="mt-3" *ngIf="index === 2"> 
+            Country
+            <ng-select 
+                [items]="countries" 
+                bindLabel="name" 
+                bindValue="id" 
+                [(ngModel)]="selectedCountry"
+                (change)="onGenerationPerTypeChange($event)">
             </ng-select>
         </div>
         <div class="mt-3" *ngIf="index === 2">
@@ -32,7 +45,9 @@
                 [items]="generationTypes" 
                 bindLabel="name" 
                 bindValue="id" 
-                [(ngModel)]="selectedGenerationType">
+                [(ngModel)]="selectedGenerationType"
+                (change)="onGenerationPerTypeChange($event)"
+            >
             </ng-select>
         </div>
         <div class="mt-3" *ngIf="index === 3">
@@ -41,7 +56,9 @@
                 [items]="countries" 
                 bindLabel="name" 
                 bindValue="id" 
-                [(ngModel)]="selectedCountryFrom">
+                [(ngModel)]="selectedCountryFrom"
+                (change)="onCrossBoarderFlowChange($event)"    
+            >
             </ng-select>
         </div>
         <div class="mt-3" *ngIf="index === 3">
@@ -50,11 +67,14 @@
                 [items]="countries" 
                 bindLabel="name" 
                 bindValue="id" 
-                [(ngModel)]="selectedCountryTo">
+                [(ngModel)]="selectedCountryTo"
+                (change)="onCrossBoarderFlowChange($event)"
+            >
+                
             </ng-select>
         </div>
     </div>
-    <div class="list-group w-50" *ngIf="index !== undefined && index > 0">
+    <div class="list-group w-50" *ngIf="dataFullForGraph">
         <div class="w-50 d-flex justify-content-evenly mx-5" style="gap: 1rem">
             <div>
                 {{options[index-1].name}}
@@ -75,7 +95,7 @@
         </div>
         <div>
             <ngx-charts-line-chart
-            [view]="[400,400]"
+            [view]="[600,400]"
             [results]="saleData"
             [xAxisLabel]="'Χρόνος'"
             [yAxisLabel]="'Τιμή'"  
@@ -83,7 +103,7 @@
             [showYAxisLabel]="true"
             [xAxis]="true"
             [yAxis]="true" 
-            *ngIf="index >= 0" 
+            *ngIf="index > 0" 
         >   
         </ngx-charts-line-chart>   
         </div>
