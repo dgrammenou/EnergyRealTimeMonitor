@@ -24,6 +24,6 @@ RUN chmod +x health_check.sh
 
 
 CMD ["node", "startup_new.js"]
-EXPOSE 7080
+EXPOSE 7083
 #POSTGRE PORT
 EXPOSE 5432

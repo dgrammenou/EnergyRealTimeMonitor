@@ -68,7 +68,7 @@ var importCSVtoDB = () => {
                 //the code bellow should be inside of end of import to DB
                 //------------------------------------------------------
                 const result = producer.send({
-                        topic: "phf",
+                        topic: "agpt",
                         //replyId: replyId,
                         messages: [{
                                 "value": "MESSAGE TO BE SENT",
@@ -87,7 +87,7 @@ importCSVtoDB();
 
 //res.status(200).send(value[0]);
 
-app.get("/getData/:country/:dataFrom/:dataTo", (req, res, next) => {
+app.get("/getData/:country/:dataFrom/:dataTo/:typeOfEnergy", (req, res, next) => {
 	
 	/*
          *
@@ -110,7 +110,7 @@ app.get("/newData", (req, res, next) => {
 });
 
 
-app.get("/getIniData/:country", (req, res, next) => {
+app.get("/getIniData/:country/:typeOfEnergy", (req, res, next) => {
 
         /*
          *

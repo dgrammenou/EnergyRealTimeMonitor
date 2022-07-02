@@ -125,6 +125,6 @@ app.get("/healthCheck", (req, res, next) => {
 	res.status(200).send("I am healthy");
 });	
 
-app.listen(8080, () => {
+app.listen(8083, () => {
 	console.log("Server running on port 8080");
 });
