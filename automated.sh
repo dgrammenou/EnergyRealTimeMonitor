@@ -1,10 +1,11 @@
 #phase_1
-##create images
+##create images and npm npm install
 
 for microservice in $@;
 do	
 	printf "%s\n" ${microservice}
 	docker build ./${microservice}/ -t ${microservice}:v1.0
+	npm install
 done       	
 
 #phase_2
