@@ -4,6 +4,7 @@ import { FileSaverService } from "ngx-filesaver";
 import { take } from 'rxjs';
 import { ChartDataDto, ChartDto } from '../services/chart.dto';
 import { DataService } from '../services/data.service';
+import { LoggingService } from '../services/logging.service';
 // import { saveSvgAsPng } from "save-svg-as-png";
 const saveSvgAsPng = require('save-svg-as-png');
 // import { sav}
@@ -61,7 +62,8 @@ export class ChartsComponent implements OnInit, OnDestroy {
   constructor(
     private calendar: NgbCalendar, 
     private fileSaverService: FileSaverService,
-    private dataService: DataService
+    private dataService: DataService,
+    public loggingService: LoggingService
   ) {
     this.selectToday();
     
@@ -87,7 +89,8 @@ export class ChartsComponent implements OnInit, OnDestroy {
       if (this.dataFullForGraph) {
         this.dataFullForGraph = this.isDataFull();
       }
-    }, 10000);
+    }, 30000);
+    this.loggingService.getUserData();
   }
   ngOnDestroy(): void { 
     if (this.intervalId) {

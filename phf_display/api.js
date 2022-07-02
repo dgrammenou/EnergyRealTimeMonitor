@@ -110,14 +110,14 @@ consumer.run({
 // });
 
 //"/api/Data/:date/:country/:typeOfenergy"
-app.get("/api/Data", (req, res, next) => {
+app.get("/api/CrossBoarderFlow/chart", (req, res, next) => {
 	
 	console.log("req = ", req.query);
 	if(!req.query) {
 		res.status(500).send("Invalid request format");
 		return;
 	} 
-	//check if data is <= to last data
+	//check if date is <= to last date
 	if(req.query.date > lastDate){
 		var str = "Please send date <=" + lastDate;
 		res.status(500).send();			

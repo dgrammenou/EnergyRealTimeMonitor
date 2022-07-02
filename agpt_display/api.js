@@ -117,7 +117,7 @@ consumer.run({
 // });
 
 //"/api/Data/:date/:country/:typeOfenergy"
-app.get("/api/Data", (req, res, next) => {
+app.get("/api/GenerationPerType/chart", (req, res, next) => {
 	
 	console.log("req = ", req.query);
 	if(!req.query) {

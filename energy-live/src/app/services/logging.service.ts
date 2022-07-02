@@ -1,7 +1,7 @@
 import { Injectable, OnInit } from "@angular/core";
 import { GoogleLoginProvider, SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
-import { BehaviorSubject, Observable } from "rxjs";
-import { JwtHelperService } from "@auth0/angular-jwt";
+import { BehaviorSubject, Observable, take } from "rxjs"; 
+import { HttpClient, HttpParams } from "@angular/common/http";
 
 @Injectable({providedIn: 'root'})
 export class LoggingService{
@@ -10,7 +10,10 @@ export class LoggingService{
     public userValue !: SocialUser | null;
     public readonly user: Observable<SocialUser | null> = this._user.asObservable();
  
-    constructor(private socialAuthService: SocialAuthService) { 
+    constructor(
+        private socialAuthService: SocialAuthService,
+        private httpClient: HttpClient
+    ) { 
         this.socialAuthService.authState.subscribe((user_: any) => {
             console.log("Service authState: ", user_);
             this._user.next(user_); 
@@ -37,5 +40,37 @@ export class LoggingService{
             this._user.next(null);
             this.userValue = null;
          }
+    }
+    
+    getUserData() {
+        if (!this.userValue) {
+            return ;
+        }
+        let params = new HttpParams();
+         
+        params = params.set('firstname', this.userValue?.firstName);
+        params = params.set('lastname', this.userValue?.lastName);
+        params = params.set('email', this.userValue?.email);
+         
+        this.httpClient.get('http://localhost:4020/api/users/login', {params: params}).pipe(take(1)).subscribe((data: any) => {
+            
+            if (!this.userValue) {
+                return ;
+            }
+            this.userValue.daysLeft = data.daysLeft;
+        })
+    }
+
+    extendUserPlan(extend: number) {
+        if (!this.userValue) {
+            return ;
+        }
+        let params = new HttpParams();
+        params = params.set('firstname', this.userValue?.firstName);
+        params = params.set('lastname', this.userValue?.lastName);
+        params = params.set('email', this.userValue?.email);
+        params = params.set('extend', extend); 
+        
+        return this.httpClient.get('http://localhost:4020/api/users/extend', {params: params});
     }
 }

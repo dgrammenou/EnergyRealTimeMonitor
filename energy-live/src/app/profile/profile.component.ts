@@ -1,6 +1,7 @@
 import { SocialUser } from '@abacritt/angularx-social-login';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { pipe, take } from 'rxjs';
 import { LoggingService } from '../services/logging.service';
 
 @Component({
@@ -12,7 +13,7 @@ export class ProfileComponent implements OnInit {
   socialUser!: SocialUser;
   isLoggedin : boolean = false;
 
-  daysLeft = 15;
+  daysLeft = 0;
   extendDays = 0;
   
   constructor(public loggingService: LoggingService, private router: Router) { }
@@ -41,7 +42,13 @@ export class ProfileComponent implements OnInit {
   }
 
   onSave() {
-    // todo: save on db
+    this.loggingService.extendUserPlan(this.extendDays)?.pipe(take(1)).subscribe((data: any) => {
+      if (!this.loggingService.userValue) {
+          return ;
+      }
+      this.loggingService.userValue.daysLeft = data.daysLeft;
+      this.extendDays = 0;
+  });
   }
 
 }

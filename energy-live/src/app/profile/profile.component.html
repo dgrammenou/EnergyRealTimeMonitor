@@ -14,8 +14,8 @@
     </div> 
 
     <div id="down" class="form-group my-4 flex d-flex justify-content-between border px-3 py-3" style="background-color: rgb(184, 184, 194)">
-        <div>
-            Days Left: <input id="daysleft" class="mx-3" type="number" min="0" [(ngModel)]="daysLeft" disabled="true">
+        <div *ngIf="loggingService.user | async as user">
+            Days Left: <input id="daysleft" class="mx-3" type="number" min="0" [(ngModel)]="user.daysLeft" disabled="true">
         </div>      
         <div>
             Extend By (days): <input id="extend" class="mx-3" type="number" min="0" [(ngModel)]="extendDays">

@@ -123,8 +123,8 @@
             <div >
                 <button class="btn no-button" >Service Status: Live</button>
             </div>
-            <div >
-                <button class="btn no-button">Days Left: 14</button>
+            <div *ngIf="loggingService.user | async as user">
+                <button class="btn no-button">Days Left: {{user.daysLeft}}</button>
             </div>
             <div >
                 <button class="btn router" routerLink="/profile">Extend Plan</button>
