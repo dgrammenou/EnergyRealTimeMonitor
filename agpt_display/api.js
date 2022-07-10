@@ -133,13 +133,19 @@ app.get("/api/GenerationPerType/chart", (req, res, next) => {
 	if(!getData[[req.query.country, req.query.generationType, req.query.date]]){
 		console.log("init array for getData");
 		getData[[req.query.country, req.query.generationType, req.query.date]] = [];
-	} 
+	}
+	
 	getData[[req.query.country, req.query.generationType, req.query.date]].push([replyId, res]);
-	console.log(getData);
-	if (getData[[req.query.country, req.query.generationType, req.query.date]].length === 0){
-		console.log("returning");
+	//avoid multiple DB requests
+	if(getData[[req.query.country, req.query.generationType, req.query.date]].length > 1){
+		console.log("someone else will respond to this request");
 		return;
 	}	
+	console.log(getData);
+	//if (getData[[req.query.country, req.query.generationType, req.query.date]].length === 0){
+	//	console.log("returning");
+	//	return;
+	//}	
 
 	else {
 		//Select from db the data and on end res.status(200).send(json Data) 
