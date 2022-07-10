@@ -20,6 +20,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FileSaverModule } from 'ngx-filesaver';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { ChartComponent } from './charts/chart/chart.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
     HomeComponent, 
     HeaderComponent, 
     ChartsComponent, 
+    ChartComponent,
     ProfileComponent, 
     AboutComponent, 
     PlansComponent, 

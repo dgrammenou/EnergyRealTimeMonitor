@@ -1,9 +1,7 @@
-.my-b {
+.bottom {
     position: absolute;
     bottom: 0;
-    // width: 100%;
-    margin-bottom: 10px;  
-    justify-content: space-between;
+    width: 100%;
 }
 
 .no-button:hover, .no-button:active, .no-button:focus {
@@ -15,13 +13,4 @@
 .router:hover {
     box-shadow: green;
     border: 1px solid green;
-}
-  
-.custom-button:hover {
-    border-radius: 5px;
-    background-color: rgb(70, 70, 248);
-}
-
-#wraper {
-    max-height: 75vh;
 }
