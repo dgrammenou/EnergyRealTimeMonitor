@@ -103,7 +103,7 @@ services:
       - kafka2
       - kafka3 
 
-    agpt_getter: 
+  agpt_getter: 
     image: agpt_getter:v1.0
     hostname: agpt_getter
     depends_on:
@@ -111,7 +111,7 @@ services:
       - kafka2
       - kafka3  
 
-    atl_display: 
+  atl_display: 
     image: atl_display:v1.0
     hostname: atl_display
     depends_on:
@@ -127,7 +127,7 @@ services:
       - kafka2
       - kafka3 
 
-    phf_display: 
+  phf_display: 
     image: phf_display:v1.0
     hostname: phf_display
     depends_on:
@@ -135,7 +135,7 @@ services:
       - kafka2
       - kafka3  
 
-    phf_getter: 
+  phf_getter: 
     image: phf_getter:v1.0
     hostname: phf_getter
     depends_on:
@@ -143,3 +143,6 @@ services:
       - kafka2
       - kafka3
 
+  users:
+    image: users:v1.0
+    hostname: users      

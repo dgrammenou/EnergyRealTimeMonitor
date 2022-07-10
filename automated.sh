@@ -14,3 +14,9 @@ sudo install pg_dump
 
 #phase_3
 ##dock-compose phase
+
+docker-compose rm -svf 
+
+docker-compose up -d
+sleep 30
+#docker-compose up -d

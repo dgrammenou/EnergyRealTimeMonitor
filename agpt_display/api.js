@@ -70,15 +70,16 @@ consumer.run({
 		};
 		//if the message is new data then get request to getter to get the data 
 		//and on end we insert them on DB
-		if(data["message in ascii"] == "new data"){
-			//get request (axios)
-			
-			
-			//insertion to db
+		
+		if(data["message in ascii"] === ""){
 
+		}
 
-			//
-		}		
+		if(data["message in ascii"] === ""){
+			
+		}
+
+		//.... ifs = number of cases (e.g. new data, add new country..)	
 	}
 });
 //----------------------------------
@@ -123,12 +124,14 @@ app.get("/api/GenerationPerType/chart", (req, res, next) => {
 	if(!req.query) {
 		res.status(500).send("Invalid request format");
 		return;
-	} 
+	}
+	 
 	// check if data is <= to last data
 	if(req.query.date > lastDate){
 		var str = "Please send date <=" + lastDate;
 		res.status(500).send();			
 	}
+
 	const replyId = Math.random().toString().substr(2);
 	if(!getData[[req.query.country, req.query.generationType, req.query.date]]){
 		console.log("init array for getData");
@@ -137,11 +140,12 @@ app.get("/api/GenerationPerType/chart", (req, res, next) => {
 	
 	getData[[req.query.country, req.query.generationType, req.query.date]].push([replyId, res]);
 	//avoid multiple DB requests
+	console.log(getData);
 	if(getData[[req.query.country, req.query.generationType, req.query.date]].length > 1){
 		console.log("someone else will respond to this request");
 		return;
 	}	
-	console.log(getData);
+	
 	//if (getData[[req.query.country, req.query.generationType, req.query.date]].length === 0){
 	//	console.log("returning");
 	//	return;

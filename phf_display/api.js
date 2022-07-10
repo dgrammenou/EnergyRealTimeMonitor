@@ -72,6 +72,16 @@ consumer.run({
 			"partition": parseInt(partition),
 			"message in ascii": message.value.toString()
 		};
+
+		if(data["message in ascii"] === ""){
+
+		}
+
+		if(data["message in ascii"] === ""){
+			
+		}
+
+		//.... ifs = number of cases (e.g. new data, add new country..)
 		
 	}
 });
@@ -129,10 +139,10 @@ app.get("/api/CrossBoarderFlow/chart", (req, res, next) => {
 	} 
 	getData[[req.query.country, req.query.generationType, req.query.date]].push([replyId, res]);
 	console.log(getData);
-	if (getData[[req.query.country, req.query.generationType, req.query.date]].length === 0){
-		console.log("returning");
+	if(getData[[req.query.country, req.query.generationType, req.query.date]].length > 1){
+		console.log("someone else will respond to this request");
 		return;
-	}	
+	}		
 
 	else {
 		//Select from db the data and on end res.status(200).send(json Data) 
