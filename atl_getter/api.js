@@ -42,7 +42,39 @@ console.log("Producer Connecting.....");
 producer.connect();
 console.log("Producer Connected!");
 
+//consumer code
+//----------------------------------
+consumer.run({
+	//console.log("In consumer run\n")
+	eachMessage: ({ topic, partition, message }) => /*res.send({ "topic":topic, "partiotion":partition, "message":message })}*/ {
+		//heartbeat();
+		console.log('Received message', {
+			topic,
+			partition,
+			//key: message.key.toString(),
+			value: message.value.toString()
+		});
+		data = {
+			"topic": topic,
+			//"message": rq.params.message,
+			"partition": parseInt(partition),
+			"message in ascii": message.value.toString()
+		};
+		//if the message is new data then get request to getter to get the data 
+		//and on end we insert them on DB
+		
+		if(data["message in ascii"] === ""){
 
+		}
+
+		if(data["message in ascii"] === ""){
+			
+		}
+
+		//.... ifs = number of cases (e.g. new data, add new country..)	
+	}
+});
+//----------------------------------
 
 //function to read csv's per e.g. 1min and import it to DB
 
