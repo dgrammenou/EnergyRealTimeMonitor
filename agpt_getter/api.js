@@ -21,15 +21,17 @@ const responses = Object.create(null);
 const pgp = require('pg-promise')({
     
         capSQL: true 
-    });
+});
 
-    const db=pgp({
+pg.types.setTypeParser(1114, str => str);
+
+const db=pgp({
         host:"localhost",
         port:5432,
         user:"postgres",
         password:"Dd2502!..",
         database:"getterforagpt"
-    })    
+})    
     
     
     
@@ -169,7 +171,7 @@ function ReadCsv(file){
                 }
             }
 
-           Object.assign(New_Data,data1)
+           Object.assign(New_Data,data1);
 
         //     console.log(cs)    
             for(var i=0;i<countries.length;i++){
