@@ -80,44 +80,17 @@ consumer.run({
 
 //function to read csv's per e.g. 1min and import it to DB
 
-//var array = [CSV array]
+const result = producer.send({
+        topic: "agpt",
+        //replyId: replyId,
+        messages: [{
+                "value": "MESSAGE TO BE SENT",
+                "data": []
 
-//counter to read each time the next csv
-counter = 0;
+        }]
+});
+conso
 
-
-var importCSVtoDB = () => {
-
-        setInterval(() => {
-                //complete this function to read csv and import it to DB
-                console.log("inside function");
-                //increment counter to read next csv
-                counter += 1;
-                //read next csv
-                console.log("inside function counter = ", counter)
-                //import it to DB
-
-
-                //update display to get the data on end of import to DB
-                //the code bellow should be inside of end of import to DB
-                //------------------------------------------------------
-                const result = producer.send({
-                        topic: "agpt",
-                        //replyId: replyId,
-                        messages: [{
-                                "value": "MESSAGE TO BE SENT",
-                                "data": []
-
-                        }]
-                });
-                console.log("after sent message with result:", result);
-                //------------------------------------------------------
-
-        }, 3000);
-
-}
-
-importCSVtoDB();
 
 //res.status(200).send(value[0]);
 
