@@ -20,7 +20,7 @@ const pool=new Pool ({
 results=[]
 
 
-filename=path.join('..','\\Countriescsv\\countries_data.csv')
+filename=path.join('..','/Countriescsv/countries_data.csv')
 y=fs.createReadStream(filename)
 .pipe(parse({delimiter:";",from_line:2}))
 .on('data',data =>results.push(data))

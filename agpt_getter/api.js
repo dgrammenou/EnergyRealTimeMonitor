@@ -13,9 +13,9 @@ const calcul_index=require("./aggrtest.js")
 
 let val = calcul_index.calindex;
 
-const responses = Object.create(null);
-
 const {Client, Connection} = require('pg');
+
+const responses = Object.create(null);
 
 
 const pgp = require('pg-promise')({
@@ -77,18 +77,24 @@ current_month={}
 
 New_Data={}
 
-fs.createReadStream(".\\Countriescsv\\countries_data.csv")
+fs.createReadStream("../Countriescsv/countries_data.csv")
 .pipe(parse({delimiter:";",from_line:2}))
     .on('data',data =>countries.push(data))
     .on('end', () => {
+//       console.log(countries);
+             
       for(var i=0;i<countries.length;i++){
-        current_month[countries[i][3].toLowerCase()]={}
-        cs.push(new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],{table:countries[i][3].toLowerCase()}))
+        countryRow_ = countries[i].toString();
+        // console.log("countryRow_ =", countryRow_)
+        countryRow = countryRow_.split(",");
+        // console.log("countryRow =", countryRow)
+        current_month[countryRow[3].toLowerCase()]={}
+        cs.push(new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],{table:countryRow[3].toLowerCase()}))
 
       }
       //console.log(current_month)
      }
-    )
+)
 
 //csvs to import to db
 const arr_of_aggrgencsv=['2022_03_07_19_AggregatedGenerationPerType16.1.BC.csv','2022_03_07_20_AggregatedGenerationPerType16.1.BC.csv']/*'2022_03_07_21_AggregatedGenerationPerType16.1.BC.csv','2022_03_07_22_AggregatedGenerationPerType16.1.BC.csv','2022_03_07_23_AggregatedGenerationPerType16.1.BC.csv']*/
@@ -109,11 +115,16 @@ function Update_post(row,index1){
 function ReadCsv(file){
 
         data1={}
+        // console.log("countries =", countries);
         for(var i=0;i<countries.length;i++){
-           data1[countries[i][3].toLowerCase()]=[]
+        countryRow_ = countries[i].toString();
+        // console.log("countryRow_ =", countryRow_)
+        countryRow = countryRow_.split(",");
+        // console.log("countryRow =", countryRow)     
+           data1[countryRow[3].toLowerCase()]=[]
         }
         var results=[];
-        filename=path.join('..','\\AGPTcsv\\'+ file)
+        filename=path.join('..','/AGPTcsv/'+ file)
         y=fs.createReadStream(filename)
         .pipe(parse({delimiter:"\t",from_line:2}))
         .on('data',data =>results.push(data))
@@ -160,29 +171,35 @@ function ReadCsv(file){
 
            Object.assign(New_Data,data1)
 
-    
+        //     console.log(cs)    
             for(var i=0;i<countries.length;i++){
-               const countrydata=data1[countries[i][3].toLowerCase()]
+               countryRow_ = countries[i].toString();
+               // console.log("countryRow_ =", countryRow_)
+               countryRow = countryRow_.split(",");
+               // console.log("countryRow =", countryRow)   
+               const countrydata=data1[countryRow[3].toLowerCase()]
+               console.log("i =", i);
                if(countrydata.length!=0){
-               const query =pgp.helpers.insert(data1[countries[i][3].toLowerCase()],cs[i])
-               db.none(query)
-               .then(()=>{
-                console.log("all records inserted")
-                /*const result = producer.send({
-                        topic: "agpt",
-                        //replyId: replyId,
-                        messages: [{
-                                "value": "NEW DATA:"+ countries[i][3]
-                                
-                
-                        }]
-                });*/
-                
+                console.log("country =",  countryRow[3]);
+                const query =pgp.helpers.insert(data1[countryRow[3].toLowerCase()],cs[i])
+                db.none(query)
+                .then(()=>{
+                        console.log("all records inserted");
+                        /*const result = producer.send({
+                                topic: "agpt",
+                                //replyId: replyId,
+                                messages: [{
+                                        "value": "NEW DATA:"+ countries[i][3]
+                                        
+                        
+                                }]
+                        });*/
+                        
 
-               })
-               .catch(error => {
-                console.log("errorrrrrrr is", error)
-               }) 
+                })
+                .catch(error => {
+                        console.log("error is", error)
+                }) 
             }
                
           }
@@ -287,51 +304,44 @@ app.get("/getData/:country/:dataFrom/:dataTo/:typeOfEnergy", (req, res, next) =>
         var datato=req.params.dataTo
         var typeofenergy=req.params.typeOfEnergy
 
-        
+        console.log("query =", "SELECT * FROM public." + country + " WHERE public." + country + ".productiontype = " + "\'" + typeofenergy + "\'" + " AND public." + country + ".datetime >= " + "\'" + datafrom + "\'" + " AND public." + country + ".datetime <= " + "\'" + datato + "\';"
+        )
         var get_query= db.query(
                 
-           "SELECT * FROM " + country + " WHERE productiontype=" + typeofenergy +" AND datetime>= "+ datafrom +" AND datetime <= "+ datato,(err,result)=>{
-              if(err){
-                console.log("ERROR")
-                res.status(500).send('An error occured');
-              }    
-              else{
-                console.log("Success")
-                res.status(200).json(result.rows)
-                console.log("result is",result)
-              } 
-              //console.log("result is",result)
+           "SELECT * FROM public." + country + " WHERE public." + country + ".productiontype = " + "\'" + typeofenergy + "\'" + " AND public." + country + ".datetime >= " + "\'" + datafrom + "\'" + " AND public." + country + ".datetime <= " + "\'" + datato + "\';"
+        )
+        .then((result) =>{
+                console.log(result);
+                res.status(200).json(result);
         })
+        .catch((e) => {
+                res.status(500).send("something went wrong");                
+        });     
+        
 });
 
 app.get("/newData/:country", (req, res, next) => {
    
-        var country=req.params.country;
+        var country=req.params.country.toString();
         res.status(200).json(New_Data[country])
-
-
         
 });
 
 
 app.get("/getIniData/:country/:typeOfEnergy", (req, res, next) => {
 
-        var country=req.params.country
-        var EnergyType=req.params.typeofEnergy;
-
-        var get_query=db.query("SELECT * from " + country + " WHERE productiontype= "+ EnergyType, (err,result)=>{
-                if(err){
-                  console.log("ERROR")
-                  res.status(500).send('An error occured');
-                }    
-                else{
-                  console.log("Success")
-                  res.status(200).json(result.rows)
-                  console.log("result is",result)
-                } 
-
-
-})
+        var country=req.params.country;
+        console.log(country);
+        var EnergyType=req.params.typeOfEnergy;
+        // console.log(EnergyType.toString);
+        console.log("query =", "SELECT * from public." + country + " WHERE public." + country + ".productiontype = "+ "\'" + EnergyType + "\';");
+        var get_query=db.any("SELECT * from public." + country + " WHERE public." + country + ".productiontype = "+ "\'" + EnergyType + "\';")
+        .then((result) =>{
+                res.status(200).json(result);
+        })
+        .catch((e) => {
+                res.status(500).send("something went wrong");                
+        });
 });
 
 app.get("/healthCheck", (req, res, next) => {
