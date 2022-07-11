@@ -191,7 +191,7 @@ function ReadCsv(file){
                                 topic: "agpt",
                                 //replyId: replyId,
                                 messages: [{
-                                        "value": "NEW DATA:"+ countries[i][3]
+                                        "value": "NEW DATA:" + countries[i][3]
                                         
                         
                                 }]

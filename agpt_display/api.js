@@ -1,5 +1,5 @@
 const express = require('express');
-const kafka = require('kafkajs');
+const Kafka = require('kafkajs');
 const pg = require('pg');
 const axios = require('axios');
 var app = express();
@@ -9,17 +9,29 @@ const getData = Object.create(null);
 // const getIniData = Object.create(null);
 // const getNewData = Object.create(null);
 
-var lastDate = "" //in format YY-MM-DD
+//var lastDate = "" //in format YY-MM-DD
 
-/*
- *
- *
- *
- *      POSTGRESql CONNECTION AND INITIALIZATION!
- *
- *
- *
- */
+
+const {Client} = require('pg');
+
+const pgp = require('pg-promise')({
+    
+    capSQL: true 
+})
+
+const db=pgp({
+    host:"localhost",
+    port:5432,
+    user:"postgres",
+    password:"Dd2502!..",
+    database:"displayforagpt"
+})
+
+
+
+
+db.connect()
+
 
 // consumer and producer here
 
@@ -54,7 +66,7 @@ console.log("Producer Connected!");
 //----------------------------------
 consumer.run({
 	//console.log("In consumer run\n")
-	eachMessage: ({ topic, partition, message }) => /*res.send({ "topic":topic, "partiotion":partition, "message":message })}*/ {
+	eachMessage: ({ topic, partition, message }) =>  {
 		//heartbeat();
 		console.log('Received message', {
 			topic,
@@ -68,16 +80,47 @@ consumer.run({
 			"partition": parseInt(partition),
 			"message in ascii": message.value.toString()
 		};
+
+		var arr=data["message in ascii"].split(":")
 		//if the message is new data then get request to getter to get the data 
 		//and on end we insert them on DB
 		
-		if(data["message in ascii"] === ""){
+		if(arr[0]=== "NEW DATA"){
+             
+			url="http://localhost:8081/newData/" + arr[1]
+            //axios get request to agpt getter for new data and insert new data to db
+			var axiosrequest = async() => {
+				const response = await axios.get(url)
+				return Object.values(response.data)[0]
+			}
+            
+			//var values=[];
+			var datafinal =  axiosrequest();//data to insert to db
+            
+			if(datafinal.length!=0){
+			   
+			   const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],{table:arr[1].toLowerCase()})
+			   
+			   const query =pgp.helpers.insert(arr[1].toLowerCase(),cs)
+			   
+			   db.none(query)
+			   .then(()=>{
+				console.log("all records for display inserted")
+			   })
+			   .catch(error => {
+				console.log("errorrrrrrr is", error)
+			   })  			
+
+			}
+
+
+        
+
+
 
 		}
 
-		if(data["message in ascii"] === ""){
-			
-		}
+		
 
 		//.... ifs = number of cases (e.g. new data, add new country..)	
 	}
@@ -118,6 +161,7 @@ consumer.run({
 // });
 
 //"/api/Data/:date/:country/:typeOfenergy"
+
 app.get("/api/GenerationPerType/chart", (req, res, next) => {
 	
 	console.log("req = ", req.query);
@@ -146,12 +190,25 @@ app.get("/api/GenerationPerType/chart", (req, res, next) => {
 		return;
 	}	
 	
-	//if (getData[[req.query.country, req.query.generationType, req.query.date]].length === 0){
-	//	console.log("returning");
-	//	return;
-	//}	
 
 	else {
+
+		var country=req.params.country
+        var datafrom=req.params.dataFrom
+        var datato=req.params.dataTo
+        var typeofenergy=req.params.typeOfEnergy
+
+		var get_query= db.query(
+                
+			"SELECT * FROM public." + country + " WHERE public." + country + ".productiontype = " + "\'" + typeofenergy + "\'" + " AND public." + country + ".datetime >= " + "\'" + datafrom + "\'" + " AND public." + country + ".datetime <= " + "\'" + datato + "\';"
+		 )
+		 .then((result) =>{
+				 console.log(result);
+				 res.status(200).json(result);
+		 })
+		 .catch((e) => {
+				 res.status(500).send("something went wrong");                
+		 });   
 		//Select from db the data and on end res.status(200).send(json Data) 
 		//on end also i should iterate throught the list (getData) of candidate (for the specific (country, genType, data)) clients and send them the data)
 		//after that pop them from the list (getData)
