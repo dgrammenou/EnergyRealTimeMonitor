@@ -72,7 +72,7 @@ const cs=[];
 current_month={}
 
 
-fs.createReadStream("..\\Countriescsv\\countries_data.csv")
+fs.createReadStream(".\\Countriescsv\\countries_data.csv")
 .pipe(parse({delimiter:";",from_line:2}))
     .on('data',data =>countries.push(data))
     .on('end', () => {
@@ -109,7 +109,7 @@ function ReadCsv(file){
        data1[countries[i][3].toLowerCase()]=[]
     }
     var results=[];
-    filename=path.join('..','\\AGPTcsv\\'+ file)
+    filename=path.join('.','\\AGPTcsv\\'+ file)
     y=fs.createReadStream(filename)
     .pipe(parse({delimiter:"\t",from_line:2}))
     .on('data',data =>results.push(data))
