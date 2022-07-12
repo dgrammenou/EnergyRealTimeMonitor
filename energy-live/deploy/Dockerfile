@@ -1,11 +1,12 @@
-# syntax=docker/dockerfile:1
-
 FROM python:3.8
 
-WORKDIR /app
+WORKDIR /app 
+
 COPY . .
 
 RUN pip install -r requirements.txt
+
+RUN ls 
 
 ENTRYPOINT [ "gunicorn" ]
 CMD ["--bind", "0.0.0.0:6543", "--workers=2", "--access-logfile", "-", "app:app"]
