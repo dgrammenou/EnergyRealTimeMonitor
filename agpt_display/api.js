@@ -181,9 +181,9 @@ app.get("/api/GenerationPerType/chart", (req, res, next) => {
 
 	else {
 
-		var country=req.params.country
-        var date=req.params.date
-        var typeofenergy=req.params.typeOfEnergy
+		var country=req.query.country
+        var date=req.query.date
+        var typeofenergy=req.query.typeOfEnergy
 
 		var get_query= db.query(
                 

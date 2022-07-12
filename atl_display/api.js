@@ -9,17 +9,27 @@ const getData = Object.create(null);
 // const getIniData = Object.create(null);
 // const getNewData = Object.create(null);
 
-var lastDate = "" //in format YY-MM-DD
+//var lastDate = "" //in format YY-MM-DD
 
-/*
- *
- *
- *
- *      POSTGRESql CONNECTION AND INITIALIZATION!
- *
- *
- *
- */
+const {Client} = require('pg');
+
+const pgp = require('pg-promise')({
+    
+    capSQL: true 
+})
+
+const db=pgp({
+    host:"localhost",
+    port:5432,
+    user:"postgres",
+    password:"Dd2502!..",
+    database:"displayforatl"
+})
+
+
+
+
+db.connect()
 
 //consumer and producer here
 
@@ -73,14 +83,36 @@ consumer.run({
 			"message in ascii": message.value.toString()
 		};
 
-
-		if(data["message in ascii"] === ""){
-
+        var arr=data["message in ascii"].split(":")
+		//if the message is new data then get request to getter to get the data 
+		//and on end we insert them on DB
+		
+		if(arr[0]=== "NEW DATA"){
+             
+			url="http://localhost:8081/newData/" + arr[1]
+            //axios get request to agpt getter for new data and insert new data to db
+			axios.get(url).then(response=>{
+                //data to insert to db
+                const datafinal = Object.values(response.data)[0];
+                if(datafinal.length!=0){
+			   
+			        const cs=new pgp.helpers.ColumnSet(['datetime','totalloadvalue','update','index'],{table:arr[1].toLowerCase()})
+			        const query =pgp.helpers.insert(arr[1].toLowerCase(),cs)
+			        db.none(query)
+			         .then(()=>{
+				        console.log("all records for display inserted")
+			            })
+			        .catch(error => {
+				        console.log("errorrrrrrr is", error)
+			        })  		
+		    	}
+			}
+            )   
 		}
 
-		if(data["message in ascii"] === ""){
+	//	if(data["message in ascii"] === ""){
 			
-		}
+	//	}
 
 		//.... ifs = number of cases (e.g. new data, add new country..)
 		
@@ -146,6 +178,23 @@ app.get("/api/ActualTotalLoad/chart", (req, res, next) => {
 	}		
 
 	else {
+
+		var country=req.query.country
+        var gentype=req.query.generationType
+        var date=req.query.date
+        //console.log("query =", "SELECT * FROM " + country + " WHERE datetime >= " + "\'" + datafrom + "\'" + " AND datetime <= " + "\'" + datato + "\';")        
+        var get_query= db.query(
+                
+           "SELECT * FROM " + country + " WHERE datetime >= " + "\'" + lastDate + "\'" + " AND datetime <= " + "\'" + date + "\'" + "totalloadvalue=" + "\'" + gentype + "\';"
+        )
+        .then((result) =>{
+                res.status(200).json(result);
+        })
+        .catch((e) => {
+                console.log("error =", e);
+                res.status(500).send("something went wrong");                
+        }); 	
+        
 		//Select from db the data and on end res.status(200).send(json Data) 
 		//on end also i should iterate throught the list (getData) of candidate (for the specific (country, genType, data)) clients and send them the data)
 		//after that pop them from the list (getData)

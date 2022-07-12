@@ -9,17 +9,25 @@ const getData = Object.create(null);
 // const getIniData = Object.create(null);
 // const getNewData = Object.create(null);
 
-var lastDate = "" //in format YY-MM-DD
+//var lastDate = "" //in format YY-MM-DD
 
-/*
- *
- *
- *
- *      POSTGRESql CONNECTION AND INITIALIZATION!
- *
- *
- *
- */
+const pgp = require('pg-promise')({
+    
+    capSQL: true 
+})
+
+const db=pgp({
+    host:"localhost",
+    port:5432,
+    user:"postgres",
+    password:"Dd2502!..",
+    database:"displayforff"
+})
+
+
+
+
+db.connect()
 
 //consumer and producer here
 
@@ -73,13 +81,41 @@ consumer.run({
 			"message in ascii": message.value.toString()
 		};
 
-		if(data["message in ascii"] === ""){
-
+		var arr=data["message in ascii"].split(":")
+		//if the message is new data then get request to getter to get the data 
+		//and on end we insert them on DB
+		
+		if(arr[0]=== "NEW DATA"){
+             
+			url="http://localhost:8081/newData/" + arr[1]
+            //axios get request to agpt getter for new data and insert new data to db
+			axios.get(url).then(response=>{
+                //data to insert to db
+                const datafinal = Object.values(response.data)[0];
+                if(datafinal.length!=0){
+			   
+			        const cs=new pgp.helpers.ColumnSet(['datetime','outareaname','inareaname','flowvalue','updatetime','index'],{table:arr[1].toLowerCase()})
+			        const query =pgp.helpers.insert(arr[1].toLowerCase(),cs)
+			        db.none(query)
+			         .then(()=>{
+				        console.log("all records for display inserted")
+			            })
+			        .catch(error => {
+				        console.log("errorrrrrrr is", error)
+			        })  		
+		    	}
+			}
+            )   
 		}
 
-		if(data["message in ascii"] === ""){
+
+		//if(data["message in ascii"] === ""){
+
+		//}
+
+		//if(data["message in ascii"] === ""){
 			
-		}
+		//}
 
 		//.... ifs = number of cases (e.g. new data, add new country..)
 		
@@ -133,18 +169,33 @@ app.get("/api/CrossBoarderFlow/chart", (req, res, next) => {
 		res.status(500).send();			
 	}
 	const replyId = Math.random().toString().substr(2);
-	if(!getData[[req.query.country, req.query.generationType, req.query.date]]){
+	if(!getData[[req.query.country, req.query.incountry, req.query.date]]){
 		console.log("init array for getData");
-		getData[[req.query.country, req.query.generationType, req.query.date]] = [];
+		getData[[req.query.country, req.query.incountry, req.query.date]] = [];
 	} 
-	getData[[req.query.country, req.query.generationType, req.query.date]].push([replyId, res]);
+	getData[[req.query.country, req.query.incountry, req.query.date]].push([replyId, res]);
 	console.log(getData);
-	if(getData[[req.query.country, req.query.generationType, req.query.date]].length > 1){
+	if(getData[[req.query.country, req.query.incountry, req.query.date]].length > 1){
 		console.log("someone else will respond to this request");
 		return;
 	}		
 
 	else {
+		var country=req.query.country
+        var incountry=req.query.incountry
+        var date=req.query.date
+        //console.log("query =", "SELECT * FROM " + country + " WHERE datetime >= " + "\'" + datafrom + "\'" + " AND datetime <= " + "\'" + datato + "\';")        
+        var get_query= db.query(
+                
+           "SELECT * FROM " + country + " WHERE datetime >= " + "\'" + lastDate + "\'" + " AND datetime <= " + "\'" + date + "\'" + "inareaname=" + "\'" + incountry + "\';"
+        )
+        .then((result) =>{
+                res.status(200).json(result);
+        })
+        .catch((e) => {
+                console.log("error =", e);
+                res.status(500).send("something went wrong");                
+        }); 	
 		//Select from db the data and on end res.status(200).send(json Data) 
 		//on end also i should iterate throught the list (getData) of candidate (for the specific (country, genType, data)) clients and send them the data)
 		//after that pop them from the list (getData)
