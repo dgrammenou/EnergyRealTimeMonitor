@@ -3,7 +3,7 @@ const Kafka = require('kafkajs');
 const pg = require('pg');
 const axios = require('axios');
 var app = express();
-// app.use(express.json())
+// app.use(express.json()) 
 
 const getData = Object.create(null);
 // const getIniData = Object.create(null);
@@ -89,35 +89,23 @@ consumer.run({
              
 			url="http://localhost:8081/newData/" + arr[1]
             //axios get request to agpt getter for new data and insert new data to db
-			var axiosrequest = async() => {
-				const response = await axios.get(url)
-				return Object.values(response.data)[0]
+			axios.get(url).then(response=>{
+                //data to insert to db
+                const datafinal = Object.values(response.data)[0];
+                if(datafinal.length!=0){
+			   
+			        const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],{table:arr[1].toLowerCase()})
+			        const query =pgp.helpers.insert(arr[1].toLowerCase(),cs)
+			        db.none(query)
+			         .then(()=>{
+				        console.log("all records for display inserted")
+			            })
+			        .catch(error => {
+				        console.log("errorrrrrrr is", error)
+			        })  		
+		    	}
 			}
-            
-			//var values=[];
-			var datafinal =  axiosrequest();//data to insert to db
-            
-			if(datafinal.length!=0){
-			   
-			   const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],{table:arr[1].toLowerCase()})
-			   
-			   const query =pgp.helpers.insert(arr[1].toLowerCase(),cs)
-			   
-			   db.none(query)
-			   .then(()=>{
-				console.log("all records for display inserted")
-			   })
-			   .catch(error => {
-				console.log("errorrrrrrr is", error)
-			   })  			
-
-			}
-
-
-        
-
-
-
+            )   
 		}
 
 		
@@ -194,13 +182,12 @@ app.get("/api/GenerationPerType/chart", (req, res, next) => {
 	else {
 
 		var country=req.params.country
-        var datafrom=req.params.dataFrom
-        var datato=req.params.dataTo
+        var date=req.params.date
         var typeofenergy=req.params.typeOfEnergy
 
 		var get_query= db.query(
                 
-			"SELECT * FROM public." + country + " WHERE public." + country + ".productiontype = " + "\'" + typeofenergy + "\'" + " AND public." + country + ".datetime >= " + "\'" + datafrom + "\'" + " AND public." + country + ".datetime <= " + "\'" + datato + "\';"
+			"SELECT * FROM public." + country + " WHERE public." + country + ".productiontype = " + "\'" + typeofenergy + "\'" + " AND public." + country + ".datetime >= " + "\'" + lastDate + "\'" + " AND public." + country + ".datetime <= " + "\'" + date + "\';"
 		 )
 		 .then((result) =>{
 				 console.log(result);
@@ -223,3 +210,4 @@ app.get("/api/healthCheck", (req, res, next) => {
 app.listen(7081, () => {
  console.log("Server running on port 7081");
 });
+
