@@ -25,5 +25,5 @@ app.logger.addHandler(logHandler)
 app.logger.setLevel(logging.INFO)
 
 if __name__=="__main__":  
-    app.run('0.0.0.0', port=6900, debug=True)
+    app.run('0.0.0.0', port=6543, debug=True)
 

@@ -32,7 +32,7 @@ export class ChartComponent implements OnInit, OnDestroy {
   date !: {year: number, month: number};
   data = [];
   saleData: ChartDto[] = [];
-
+  latestUpdate !: string;
 
   selectedCountry !: number;
 
@@ -117,22 +117,7 @@ export class ChartComponent implements OnInit, OnDestroy {
     private dataService: DataService,
     public loggingService: LoggingService
   ) {
-    this.selectToday();
-    
-    let data_graph: ChartDataDto[] = [];
-    for (var i = 0; i < this.data.length; i++) {
-      data_graph.push({
-        "name": (i+1).toString(),
-        "value": this.data[i]
-      }) 
-    } 
-    this.saleData = [
-      {
-        "name": "test name", 
-        "series": data_graph
-      }, 
-    ];
- 
+    this.selectToday();  
   }
 
   ngOnInit(): void {
@@ -205,6 +190,7 @@ export class ChartComponent implements OnInit, OnDestroy {
         date: new Date(this.model.year, this.model.month, this.model.day),
       }).pipe(take(1)).subscribe(d => {
         this.saleData = [ d ];
+        this.latestUpdate = d.latestUpdate;
       });
 
       return true;      
@@ -217,6 +203,7 @@ export class ChartComponent implements OnInit, OnDestroy {
         generationType: this.generationTypes[this.selectedGenerationType - 1].name
       }).pipe(take(1)).subscribe(d => {
         this.saleData = [ d ];
+        this.latestUpdate = d.latestUpdate;
       });
 
       return true;
@@ -228,6 +215,7 @@ export class ChartComponent implements OnInit, OnDestroy {
         countryTo: this.countries[this.selectedCountryTo - 1].code
       }).pipe(take(1)).subscribe(d => {
         this.saleData = [ d ];
+        this.latestUpdate = d.latestUpdate;
       });
 
       return true;
