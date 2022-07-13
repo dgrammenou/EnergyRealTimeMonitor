@@ -94,18 +94,33 @@ services:
       ##interval: 5s
       ##timeout: 100s
       ##retries: 150      
-
+     
+  
   agpt_display: 
     image: agpt_display:v1.0
     hostname: agpt_display
+    ports:
+      - "7081:7081" 
+    volumes:
+      - ./Countriescsv:/Countriescsv
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - kafka1
       - kafka2
-      - kafka3 
+      - kafka3
+      - atl_getter  
 
   agpt_getter: 
     image: agpt_getter:v1.0
     hostname: agpt_getter
+    ports:
+      - "8081:8081"    
+    volumes:
+      - ./Countriescsv:/Countriescsv
+      - ./AGPTcsv:/AGPTcsv  
+    extra_hosts:
+      - "host.docker.internal:host-gateway"    
     depends_on:
       - kafka1
       - kafka2
@@ -114,14 +129,28 @@ services:
   atl_display: 
     image: atl_display:v1.0
     hostname: atl_display
+    ports:
+      - "7082:7082"
+    volumes:
+      - ./Countriescsv:/Countriescsv
+    extra_hosts:
+      - "host.docker.internal:host-gateway"    
     depends_on:
       - kafka1
       - kafka2
-      - kafka3           
+      - kafka3
+      - atl_getter        
 
   atl_getter: 
     image: atl_getter:v1.0
     hostname: atl_getter
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./Countriescsv:/Countriescsv
+      - ./ATLcsv:/ATLcsv
+    extra_hosts:
+      - "host.docker.internal:host-gateway"    
     depends_on:
       - kafka1
       - kafka2
@@ -130,19 +159,33 @@ services:
   phf_display: 
     image: phf_display:v1.0
     hostname: phf_display
+    ports:
+      - "7083:7083"
+    volumes:
+      - ./Countriescsv:/Countriescsv
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - kafka1
       - kafka2
-      - kafka3  
+      - kafka3 
+      - phf_getter  
 
   phf_getter: 
     image: phf_getter:v1.0
     hostname: phf_getter
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./Countriescsv:/Countriescsv
+      - ./FFcsv:/FFcsv
+    extra_hosts:
+      - "host.docker.internal:host-gateway"    
     depends_on:
       - kafka1
       - kafka2
       - kafka3
 
-  users:
-    image: users:v1.0
-    hostname: users      
+        #users:
+        #image: users:v1.0
+        #hostname: users      

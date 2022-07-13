@@ -1,5 +1,5 @@
 const express = require('express');
-const kafka = require('kafkajs');
+const {Kafka} = require('kafkajs');
 const pg = require('pg'); 
 var app = express();
 
@@ -25,7 +25,7 @@ const pgp = require('pg-promise')({
 pg.types.setTypeParser(1114, str => str);
 
 const db=pgp({
-        host:"localhost",
+        host:"host.docker.internal",
         port:5432,
         user:"postgres",
         password:"Dd2502!..",
@@ -53,6 +53,27 @@ current_month={}
 countries_dict={}
 
 New_Data={}
+
+// consumer and producer here
+// ----------------------------------
+const kafka = new Kafka({
+        "clientId": "SaaS-2022",
+        "brokers" :["kafka1:19092","kafka2:19093", "kafka3:19094"]
+});
+const consumer = kafka.consumer({"groupId": "atl_cons"})
+console.log("Consumer Connecting.......")
+consumer.connect()
+console.log("Consumer Connected!")
+consumer.subscribe({
+        topic: "atl",
+});
+
+//producer config and connection!
+const producer = kafka.producer();
+console.log("Producer Connecting.....");
+producer.connect();
+console.log("Producer Connected!");
+//----------------------------------
 
 fs.createReadStream("../Countriescsv/countries_data.csv")
 .pipe(parse({delimiter:";",from_line:2}))
@@ -96,126 +117,67 @@ function ReadCsv(file){
         .on('end', () =>{
             for(var i=0; i < results.length;i++){
                 if(results[i][3]==='CTY') {
-                 var countryname=results[i][5].toLowerCase()
-                 var ind=val(initialdate,results[i][0],parseInt(results[i][1].substring(2,3))) + countries_dict[countryname]
-                 if (current_month[countryname][ind]===undefined){                  
-                       current_month[countryname][ind]=results[i][7]
-                       var values = [results[i][0], results[i][6]===''?null:results[i][6], results[i][7], ind] 
-                       data1[countryname].push({datetime:values[0],totalloadvalue:values[1],updatetime:values[2],index:values[3]})
-                 }
-                 else{    
-                        var cur_date_split=current_month[countryname][ind].split(" ");
-                        var res_date_split=results[i][7].split(" ");
-                        var current_date=new Date(cur_date_split[0]);
-                        var res_date=new Date(res_date_split[0]);
-                        if(current_date===res_date){
-                           var cur_hour=cur_date_split[1].split(":");
-                           var res_hour=res_date_split[1].split(":");
-                           if((cur_hour[0]<res_hour[0]) || (cur_hour[0]===res_hour[0] && cur_hour[1]<res_hour[1])) {
-                               Update_post(results[i],ind)
-                            }
-                         }
-                    
+                        var countryname=results[i][5].toLowerCase()
+                        var ind=val(initialdate,results[i][0],parseInt(results[i][1].substring(2,3))) + countries_dict[countryname]
+                        if (current_month[countryname][ind]===undefined){                  
+                              current_month[countryname][ind]=results[i][7]
+                              var values = [results[i][0], results[i][6]===''?null:results[i][6], results[i][7], ind] 
+                              data1[countryname].push({datetime:values[0],totalloadvalue:values[1],updatetime:values[2],index:values[3]})
+                        }
+                        else{    
+                               var cur_date_split=current_month[countryname][ind].split(" ");
+                               var res_date_split=results[i][7].split(" ");
+                               var current_date=new Date(cur_date_split[0]);
+                               var res_date=new Date(res_date_split[0]);
+                               if(current_date===res_date){
+                                  var cur_hour=cur_date_split[1].split(":");
+                                  var res_hour=res_date_split[1].split(":");
+                                  if((cur_hour[0]<res_hour[0]) || (cur_hour[0]===res_hour[0] && cur_hour[1]<res_hour[1])) {
+                                      Update_post(results[i],ind)
+                                   }
+                                }
+                           
+                       }        
                 }
-                }
-            }
+        }
 
             Object.assign(New_Data,data1);
-    
+            
+            countryRow_list = []
+            counter_for_countries = 0;
             for(var i=0;i<countries.length;i++){
                 countryRow_ = countries[i].toString();
-                countryRow = countryRow_.split(","); 
+                countryRow = countryRow_.split(",");
                 const countrydata=data1[countryRow[3].toLowerCase()]
                 if(countrydata.length!=0){
+                        console.log("country =",  countryRow[3]);
+                        countryRow_list.push(countryRow[3]);
                         const query =pgp.helpers.insert(data1[countryRow[3].toLowerCase()],cs[i])
                         db.none(query)
                         .then(()=>{
                                 console.log("all records inserted")
+                                const result = producer.send({
+                                        topic: "atl",
+                                        //replyId: replyId,
+                                        messages: [{
+                                                "value": "NEW DATA:" + countryRow_list[counter_for_countries]
+                                                
+                                
+                                        }]
+                                });
+                                counter_for_countries += 1;
                         })
                         .catch(error => {
                                 console.log("error is", error)
                         }) 
                 }
                
-          }
+          }     
         
           }
         )
 }
-//consumer and producer here
 
-// const kafka = new Kafka({
-//         "clientId": "SaaS-2022",
-//         "brokers" :["kafka1:19092","kafka2:19093", "kafka3:19094"]
-
-// });
-
-// const consumer = kafka.consumer({"groupId": "atl_cons"})
-
-// console.log("Consumer Connecting.......")
-// consumer.connect()
-
-// console.log("Consumer Connected!")
-// consumer.subscribe({
-//         topic: "atl",
-// });
-
-
-// //producer config and connection!
-
-// const producer = kafka.producer();
-
-// console.log("Producer Connecting.....");
-// producer.connect();
-// console.log("Producer Connected!");
-
-// //consumer code
-// //----------------------------------
-// consumer.run({
-// 	//console.log("In consumer run\n")
-// 	eachMessage: ({ topic, partition, message }) => /*res.send({ "topic":topic, "partiotion":partition, "message":message })}*/ {
-// 		//heartbeat();
-// 		console.log('Received message', {
-// 			topic,
-// 			partition,
-// 			//key: message.key.toString(),
-// 			value: message.value.toString()
-// 		});
-// 		data = {
-// 			"topic": topic,
-// 			//"message": rq.params.message,
-// 			"partition": parseInt(partition),
-// 			"message in ascii": message.value.toString()
-// 		};
-// 		//if the message is new data then get request to getter to get the data 
-// 		//and on end we insert them on DB
-		
-// 		if(data["message in ascii"] === ""){
-
-// 		}
-
-// 		if(data["message in ascii"] === ""){
-			
-// 		}
-
-// 		//.... ifs = number of cases (e.g. new data, add new country..)	
-// 	}
-// });
-// //----------------------------------
-
-// //function to read csv's per e.g. 1min and import it to DB
-
-// //after every import for a specific country send this message
-
-// const result = producer.send({
-//         topic: "phf",
-//         //replyId: replyId,
-//         messages: [{
-//                 "value": "new data:{country}",
-//                 "data": []
-
-//         }]
-// });
 
 var updateinterval=setInterval(InsertAndUpdateCsv,30000)
 
@@ -232,7 +194,6 @@ function InsertAndUpdateCsv() {
 
 
 //res.status(200).send(value[0]);
-
 app.get("/getData/:country/:dataFrom/:dataTo", (req, res, next) => {
 
         var country=req.params.country
@@ -253,9 +214,11 @@ app.get("/getData/:country/:dataFrom/:dataTo", (req, res, next) => {
 	
 });
 
-app.get("/newData", (req, res, next) => {
+app.get("/newData/:country", (req, res, next) => {
 
         var country=req.params.country.toString();
+        console.log("got a request for new data!");
+        // console.log("i will return:", New_Data[country]) 
         res.status(200).json(New_Data[country])
 
 });

@@ -1,15 +1,12 @@
 const express = require('express');
-const kafka = require('kafkajs');
+const {Kafka} = require('kafkajs');
 const pg = require('pg'); 
 const axios = require('axios');
 var app = express();
-// app.use(express.json())
 
 const getData = Object.create(null);
-// const getIniData = Object.create(null);
-// const getNewData = Object.create(null);
 
-//var lastDate = "" //in format YY-MM-DD
+countries = ['al','am','at','az','ba','be','bg','by','cy','cz','de','dk','ee','es','fi','fr','gb','ge','gr','hr','hu','ie','it','lt','lu','lv','md','me','mk','no','pl','nl','mt','pt','ro','rs','se','si','sk','tr','ua','xk', 'ru', 'ch']
 
 const pgp = require('pg-promise')({
     
@@ -17,15 +14,12 @@ const pgp = require('pg-promise')({
 })
 
 const db=pgp({
-    host:"localhost",
+    host:"host.docker.internal",
     port:5432,
     user:"postgres",
     password:"Dd2502!..",
     database:"displayforff"
 })
-
-
-
 
 db.connect()
 
@@ -85,112 +79,80 @@ consumer.run({
 		//if the message is new data then get request to getter to get the data 
 		//and on end we insert them on DB
 		
-		if(arr[0]=== "NEW DATA"){
+		if(arr[0] === "NEW DATA"){
              
-			url="http://localhost:8081/newData/" + arr[1]
+			url="http://phf_getter:8083/newData/" + arr[1].toLowerCase();
+			console.log("url =", url);
             //axios get request to agpt getter for new data and insert new data to db
-			axios.get(url).then(response=>{
-                //data to insert to db
-                const datafinal = Object.values(response.data)[0];
-                if(datafinal.length!=0){
-			   
-			        const cs=new pgp.helpers.ColumnSet(['datetime','outareaname','inareaname','flowvalue','updatetime','index'],{table:arr[1].toLowerCase()})
-			        const query =pgp.helpers.insert(arr[1].toLowerCase(),cs)
-			        db.none(query)
-			         .then(()=>{
-				        console.log("all records for display inserted")
-			            })
-			        .catch(error => {
-				        console.log("errorrrrrrr is", error)
-			        })  		
-		    	}
-			}
-            )   
-		}
+			axios.get(url).then((response) =>{
+				//data to insert to db
+				// console.log(response.data)
+				const datafinal = Object.values(response.data);
+				// console.log("datafinal =", datafinal);
+				if(datafinal != undefined){
+					if(datafinal.length!=0){
+						console.log("inserting data for country", arr[1].toLowerCase())	
+						const cs= new pgp.helpers.ColumnSet(['datetime','outareaname','inareaname','flowvalue','updatetime','index'],{table:arr[1].toLowerCase()})
+						const query = pgp.helpers.insert(datafinal,cs)
+						db.none(query)
+							.then(()=>{
+							console.log("all records for display inserted")
+							})
+						.catch(error => {
+							console.log("error is", error)
+						})  		
+					}
+				}
+			})
+        }
 
-
-		//if(data["message in ascii"] === ""){
-
-		//}
-
-		//if(data["message in ascii"] === ""){
-			
-		//}
-
-		//.... ifs = number of cases (e.g. new data, add new country..)
 		
 	}
 });
-//----------------------------------
 
-//"/api/IniData/:country/:typeOfEnergy"
-// app.get("/api/IniData", (req, res, next) => {
 
-// 	if(!req.body.data) {
-// 		res.status(500).send("Invalid request format");
-// 		return;
-// 	} 
 
-// 	const replyId = Math.random().toString().substr(2);
-// 	getIniData[replyId] = res;
-// 	console.log(req);
+
+app.get("/api/:country/:incountry/:date", (req, res, next) => {
 	
+	var date = req.params.date
 
-// });
+        var date_start = date + " 00:00:00";
+        var date_end = date + " 23:59:59";
 
-//"/api/NewData/:country/:typeOfenergy"
-// app.get("/api/NewData", (req, res, next) => {
-	
-// 	if(!req.body.data) {
-// 		res.status(500).send("Invalid request format");
-// 		return;
-// 	} 
-
-// 	const replyId = Math.random().toString().substr(2);
-// 	if(!getNewData[[req.body.country, req.body.typeOfEnergy, req.body.date]]){
-// 		getNewData[[req.body.country, req.body.typeOfEnergy, req.body.date]] = []
-// 	} 
-// 	getNewData[[req.body.country, req.body.typeOfEnergy, req.body.date]].push([replyIdres]);
-// 	console.log(req);
-
-// });
-
-//"/api/Data/:date/:country/:typeOfenergy"
-app.get("/api/CrossBoarderFlow/chart", (req, res, next) => {
-	
-	console.log("req = ", req.query);
-	if(!req.query) {
+	console.log("req = ", req.params);
+	if(!req.params) {
 		res.status(500).send("Invalid request format");
 		return;
 	} 
 	//check if date is <= to last date
-	if(req.query.date > lastDate){
-		var str = "Please send date <=" + lastDate;
-		res.status(500).send();			
-	}
+
 	const replyId = Math.random().toString().substr(2);
-	if(!getData[[req.query.country, req.query.incountry, req.query.date]]){
+	if(!getData[(req.params.country, req.params.incountry, req.params.date)]){
 		console.log("init array for getData");
-		getData[[req.query.country, req.query.incountry, req.query.date]] = [];
+		getData[(req.params.country, req.params.incountry, req.params.date)] = [];
 	} 
-	getData[[req.query.country, req.query.incountry, req.query.date]].push([replyId, res]);
+	getData[(req.params.country, req.params.incountry, req.params.date)].push([replyId, res]);
 	console.log(getData);
-	if(getData[[req.query.country, req.query.incountry, req.query.date]].length > 1){
+	if(getData[(req.params.country, req.params.incountry, req.params.date)].length > 1){
 		console.log("someone else will respond to this request");
 		return;
 	}		
 
 	else {
-		var country=req.query.country
-        var incountry=req.query.incountry
-        var date=req.query.date
-        //console.log("query =", "SELECT * FROM " + country + " WHERE datetime >= " + "\'" + datafrom + "\'" + " AND datetime <= " + "\'" + datato + "\';")        
+		var country=req.params.country
+		var incountry=req.params.incountry
+		var date=req.params.date
+        console.log("query =", "SELECT * FROM " + country + " WHERE datetime >= " + "\'" + date_start + "\'" + " AND datetime <= " + "\'" + date_end + "\' AND inareaname = " + "\'" + incountry + "\';")        
         var get_query= db.query(
-                
-           "SELECT * FROM " + country + " WHERE datetime >= " + "\'" + lastDate + "\'" + " AND datetime <= " + "\'" + date + "\'" + "inareaname=" + "\'" + incountry + "\';"
+            "SELECT * FROM " + country + " WHERE datetime >= " + "\'" + date_start + "\'" + " AND datetime <= " + "\'" + date_end + "\' AND inareaname = " + "\'" + incountry + "\';"
         )
         .then((result) =>{
-                res.status(200).json(result);
+			console.log(result);
+			for(var i=0; i<getData[(req.params.country, req.params.generationType, req.params.date)].length; i++){
+			   getData[(req.params.country, req.params.generationType, req.params.date)][i][1].status(200).json(result);
+		    }
+			getData[(req.params.country, req.params.generationType, req.params.date)] = [];
         })
         .catch((e) => {
                 console.log("error =", e);
@@ -208,5 +170,30 @@ app.get("/healthCheck", (req, res, next) => {
 });
 
 app.listen(7083, () => {
- console.log("Server running on port 7080");
+ console.log("Server running on port 7083");
 });
+
+
+for(var i = 0; i < countries.length; i++){
+	url="http://phf_getter:8083/getIniData/" + countries[i];
+	console.log("url =", url);
+	//axios get request to agpt getter for data and insert new data to db
+	axios.get(url).then((response) =>{
+		// console.log(response.data)
+		const datafinal = Object.values(response.data);
+		console.log("datafinal =", datafinal);
+		if(datafinal != undefined){
+			if(datafinal.length!=0){
+				const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],{table:arr[1].toLowerCase()})
+				const query =pgp.helpers.insert(datafinal, cs)
+				db.none(query)
+				.then(()=>{
+					console.log("all records for display inserted")
+				})
+				.catch(error => {
+					console.log("error is", error)
+				})  		
+			}	
+		}
+	})
+}

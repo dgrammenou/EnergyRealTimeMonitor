@@ -8,7 +8,7 @@ do
 	while [[ $ret != *"Metadata"* ]];
 	do
 		printf "unsuccesful\n"
-		ret=$(kafkacat -L -b $kafka_server  -t maria)
+		ret=$(kafkacat -L -b $kafka_server  -t phf)
 		sleep 1	
 	done	
 	printf "succesful for %s\n" $kafka_server

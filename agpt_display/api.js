@@ -1,18 +1,13 @@
 const express = require('express');
-const Kafka = require('kafkajs');
+const {Kafka} = require('kafkajs');
 const pg = require('pg');
 const axios = require('axios');
 var app = express();
-// app.use(express.json()) 
 
 const getData = Object.create(null);
-// const getIniData = Object.create(null);
-// const getNewData = Object.create(null);
 
-//var lastDate = "" //in format YY-MM-DD
-
-
-const {Client} = require('pg');
+countries = ['al','am','at','az','ba','be','bg','by','cy','cz','de','dk','ee','es','fi','fr','gb','ge','gr','hr','hu','ie','it','lt','lu','lv','md','me','mk','no','pl','nl','mt','pt','ro','rs','se','si','sk','tr','ua','xk', 'ru', 'ch']
+	
 
 const pgp = require('pg-promise')({
     
@@ -20,18 +15,14 @@ const pgp = require('pg-promise')({
 })
 
 const db=pgp({
-    host:"localhost",
+    host:"host.docker.internal",
     port:5432,
     user:"postgres",
     password:"Dd2502!..",
     database:"displayforagpt"
 })
 
-
-
-
 db.connect()
-
 
 // consumer and producer here
 
@@ -85,95 +76,60 @@ consumer.run({
 		//if the message is new data then get request to getter to get the data 
 		//and on end we insert them on DB
 		
-		if(arr[0]=== "NEW DATA"){
+		if(arr[0] === "NEW DATA"){
              
-			url="http://localhost:8081/newData/" + arr[1]
+			url="http://agpt_getter:8081/newData/" + arr[1].toLowerCase();
+			console.log("url =", url);
             //axios get request to agpt getter for new data and insert new data to db
-			axios.get(url).then(response=>{
-                //data to insert to db
-                const datafinal = Object.values(response.data)[0];
-                if(datafinal.length!=0){
-			   
-			        const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],{table:arr[1].toLowerCase()})
-			        const query =pgp.helpers.insert(arr[1].toLowerCase(),cs)
-			        db.none(query)
-			         .then(()=>{
-				        console.log("all records for display inserted")
-			            })
-			        .catch(error => {
-				        console.log("errorrrrrrr is", error)
-			        })  		
-		    	}
-			}
-            )   
-		}
-
-		
-
-		//.... ifs = number of cases (e.g. new data, add new country..)	
+			axios.get(url).then((response) =>{
+				// console.log(response.data)
+				const datafinal = Object.values(response.data);
+				// console.log("datafinal =", datafinal);
+				if(datafinal != undefined){
+					if(datafinal.length!=0){
+						const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],{table:arr[1].toLowerCase()})
+						const query =pgp.helpers.insert(datafinal, cs)
+						db.none(query)
+						.then(()=>{
+							console.log("all records for display inserted")
+						})
+						.catch(error => {
+							console.log("error is", error)
+						})  		
+					}	
+				}
+			})
+        }
+				
 	}
 });
-//----------------------------------
 
 
-//"/api/IniData/:country/:typeOfEnergy"
-// app.get("/api/IniData", (req, res, next) => {
 
-// 	if(!req.body.data) {
-// 		res.status(500).send("Invalid request format");
-// 		return;
-// 	} 
 
-// 	const replyId = Math.random().toString().substr(2);
-// 	getIniData[replyId] = res;
-// 	console.log(req);
+app.get("/api/:country/:generationType/:date", (req, res, next) => {
 	
-
-// });
-
-//"/api/NewData/:country/:typeOfenergy"
-// app.get("/api/NewData", (req, res, next) => {
+	var date = req.params.date
 	
-// 	if(!req.body.data) {
-// 		res.status(500).send("Invalid request format");
-// 		return;
-// 	} 
+	var date_start = date + " 00:00:00";
+	var date_end = date + " 23:59:59";
 
-// 	const replyId = Math.random().toString().substr(2);
-// 	if(!getNewData[[req.body.country, req.body.typeOfEnergy, req.body.date]]){
-// 		getNewData[[req.body.country, req.body.typeOfEnergy, req.body.date]] = []
-// 	} 
-// 	getNewData[[req.body.country, req.body.typeOfEnergy, req.body.date]].push([replyIdres]);
-// 	console.log(req);
-
-// });
-
-//"/api/Data/:date/:country/:typeOfenergy"
-
-app.get("/api/GenerationPerType/chart", (req, res, next) => {
-	
-	console.log("req = ", req.query);
-	if(!req.query) {
+	console.log("req = ", req.params);
+	if(!req.params) {
 		res.status(500).send("Invalid request format");
 		return;
 	}
 	 
-	// check if data is <= to last data
-	if(req.query.date > lastDate){
-		var str = "Please send date <=" + lastDate;
-		res.status(500).send();			
-	}
-
 	const replyId = Math.random().toString().substr(2);
-	if(!getData[[req.query.country, req.query.generationType, req.query.date]]){
+	if(!getData[(req.params.country, req.params.generationType, req.params.date)]){
 		console.log("init array for getData");
-		getData[[req.query.country, req.query.generationType, req.query.date]] = [];
+		getData[(req.params.country, req.params.generationType, req.params.date)] = [];
 	}
 	
-	getData[[req.query.country, req.query.generationType, req.query.date]].push([replyId, res]);
+	getData[(req.params.country, req.params.generationType, req.params.date)].push([replyId, res]);
 	//avoid multiple DB requests
 	console.log(getData);
-	if(getData[[req.query.country, req.query.generationType, req.query.date]].length > 1){
+	if(getData[(req.params.country, req.params.generationType, req.params.date)].length > 1){
 		console.log("someone else will respond to this request");
 		return;
 	}	
@@ -181,21 +137,27 @@ app.get("/api/GenerationPerType/chart", (req, res, next) => {
 
 	else {
 
-		var country=req.query.country
-        var date=req.query.date
-        var typeofenergy=req.query.typeOfEnergy
-
+		var country=req.params.country
+		var date=req.params.date
+		var typeofenergy=req.params.generationType
+		console.log("query =", "SELECT * FROM public." + country + " WHERE public." + country + ".productiontype = " + "\'" + typeofenergy + "\'" + " AND public." + country + ".datetime >= " + "\'" + date_start + "\'" + " AND public." + country + ".datetime <= " + "\'" + date_end + "\';")
 		var get_query= db.query(
-                
-			"SELECT * FROM public." + country + " WHERE public." + country + ".productiontype = " + "\'" + typeofenergy + "\'" + " AND public." + country + ".datetime >= " + "\'" + lastDate + "\'" + " AND public." + country + ".datetime <= " + "\'" + date + "\';"
+               
+			"SELECT * FROM public." + country + " WHERE public." + country + ".productiontype = " + "\'" + typeofenergy + "\'" + " AND public." + country + ".datetime >= " + "\'" + date_start + "\'" + " AND public." + country + ".datetime <= " + "\'" + date_end + "\';"
 		 )
 		 .then((result) =>{
-				 console.log(result);
-				 res.status(200).json(result);
+				console.log(result);
+			 	for(var i=0; i<getData[(req.params.country, req.params.generationType, req.params.date)].length; i++){
+					getData[(req.params.country, req.params.generationType, req.params.date)][i][1].status(200).json(result);
+				}
+				getData[(req.params.country, req.params.generationType, req.params.date)] = [];
+				//  res.status(200).json(result);
 		 })
 		 .catch((e) => {
 				 res.status(500).send("something went wrong");                
-		 });   
+		 });
+
+
 		//Select from db the data and on end res.status(200).send(json Data) 
 		//on end also i should iterate throught the list (getData) of candidate (for the specific (country, genType, data)) clients and send them the data)
 		//after that pop them from the list (getData)
@@ -211,3 +173,28 @@ app.listen(7081, () => {
  console.log("Server running on port 7081");
 });
 
+
+
+for(var i = 0; i < countries.length; i++){
+	url="http://agpt_getter:8081/getIniData/" + countries[i];
+	console.log("url =", url);
+	//axios get request to agpt getter for data and insert new data to db
+	axios.get(url).then((response) =>{
+		// console.log(response.data)
+		const datafinal = Object.values(response.data);
+		console.log("datafinal =", datafinal);
+		if(datafinal != undefined){
+			if(datafinal.length!=0){
+				const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],{table:arr[1].toLowerCase()})
+				const query =pgp.helpers.insert(datafinal, cs)
+				db.none(query)
+				.then(()=>{
+					console.log("all records for display inserted")
+				})
+				.catch(error => {
+					console.log("error is", error)
+				})  		
+			}	
+		}
+	})
+}

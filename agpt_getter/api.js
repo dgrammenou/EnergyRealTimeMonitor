@@ -1,5 +1,5 @@
 const express = require('express');
-const kafka = require('kafkajs');
+const {Kafka} = require('kafkajs');
 const pg = require('pg'); 
 var app = express();
 
@@ -26,7 +26,7 @@ const pgp = require('pg-promise')({
 pg.types.setTypeParser(1114, str => str);
 
 const db=pgp({
-        host:"localhost",
+        host:"host.docker.internal",
         port:5432,
         user:"postgres",
         password:"Dd2502!..",
@@ -79,6 +79,28 @@ current_month={}
 
 New_Data={}
 
+//consumer and producer here
+// ----------------------------------
+const kafka = new Kafka({
+        "clientId": "SaaS-2022",
+        "brokers" :["kafka1:19092","kafka2:19093", "kafka3:19094"]
+    
+});
+const consumer = kafka.consumer({"groupId": "agpt_cons"})
+console.log("Consumer Connecting.......")
+consumer.connect()
+console.log("Consumer Connected!")
+consumer.subscribe({
+        topic: "agpt",
+});
+
+//producer config and connection!
+const producer = kafka.producer();
+console.log("Producer Connecting.....");
+producer.connect();
+console.log("Producer Connected!");
+// ----------------------------------
+
 fs.createReadStream("../Countriescsv/countries_data.csv")
 .pipe(parse({delimiter:";",from_line:2}))
     .on('data',data =>countries.push(data))
@@ -95,8 +117,11 @@ fs.createReadStream("../Countriescsv/countries_data.csv")
 
       }
       //console.log(current_month)
-     }
-)
+     })
+     .on('error', (err) => {
+	     console.log("error trying to open Countries csv");
+     });     
+
 
 //csvs to import to db
 const arr_of_aggrgencsv=['2022_03_07_19_AggregatedGenerationPerType16.1.BC.csv','2022_03_07_20_AggregatedGenerationPerType16.1.BC.csv']/*'2022_03_07_21_AggregatedGenerationPerType16.1.BC.csv','2022_03_07_22_AggregatedGenerationPerType16.1.BC.csv','2022_03_07_23_AggregatedGenerationPerType16.1.BC.csv']*/
@@ -152,13 +177,13 @@ function ReadCsv(file){
     
                     else{
                     
-                        var cur_date_split=current_month[countryname][ind].split(" ");
-                        var res_date_split=results[i][9].split(" ");
-                        var current_date=new Date(cur_date_split[0]);
-                        var res_date=new Date(res_date_split[0]);
-                        if(current_date===res_date){
-                           var cur_hour=cur_date_split[1].split(":");
-                           var res_hour=res_date_split[1].split(":");
+                        var cur_date_split = current_month[countryname][ind].split(" ");
+                        var res_date_split = results[i][9].split(" ");
+                        var current_date = new Date(cur_date_split[0]);
+                        var res_date = new Date(res_date_split[0]);
+                        if(current_date === res_date){
+                           var cur_hour = cur_date_split[1].split(":");
+                           var res_hour = res_date_split[1].split(":");
                            if((cur_hour[0]<res_hour[0]) || (cur_hour[0]===res_hour[0] && cur_hour[1]<res_hour[1])) {
                                Update_post(results[i],ind)
                             }
@@ -171,110 +196,48 @@ function ReadCsv(file){
                 }
             }
 
-           Object.assign(New_Data,data1);
-
+            Object.assign(New_Data,data1);
+            countryRow_list = []
+            counter_for_countries = 0;
         //     console.log(cs)    
             for(var i=0;i<countries.length;i++){
                countryRow_ = countries[i].toString();
                // console.log("countryRow_ =", countryRow_)
                countryRow = countryRow_.split(",");
                // console.log("countryRow =", countryRow)   
-               const countrydata=data1[countryRow[3].toLowerCase()]
+               const countrydata = data1[countryRow[3].toLowerCase()]
                console.log("i =", i);
                if(countrydata.length!=0){
-                console.log("country =",  countryRow[3]);
-                const query =pgp.helpers.insert(data1[countryRow[3].toLowerCase()],cs[i])
-                db.none(query)
-                .then(()=>{
-                        console.log("all records inserted");
-                        /*const result = producer.send({
-                                topic: "agpt",
-                                //replyId: replyId,
-                                messages: [{
-                                        "value": "NEW DATA:" + countries[i][3]
-                                        
-                        
-                                }]
-                        });*/
-                        
+                        console.log("country =",  countryRow[3]);
+                        countryRow_list.push(countryRow[3]);
+                        const query =pgp.helpers.insert(data1[countryRow[3].toLowerCase()],cs[i])
+                        db.none(query)
+                        .then(()=>{
+                                console.log("all records inserted");
+                                const result = producer.send({
+                                        topic: "agpt",
+                                        //replyId: replyId,
+                                        messages: [{
+                                                "value": "NEW DATA:" + countryRow_list[counter_for_countries]
+                                                
+                                
+                                        }]
+                                
+                                });
+                                counter_for_countries += 1;
+                                
 
-                })
-                .catch(error => {
-                        console.log("error is", error)
-                }) 
-            }
+                        })
+                        .catch(error => {
+                                console.log("error is", error)
+                        }) 
+             } 
                
           }
         
           }
         )
      }
-
-
-
-
-
-//consumer and producer here
-
-/*const kafka = new Kafka({
-        "clientId": "SaaS-2022",
-        "brokers" :["kafka1:19092","kafka2:19093", "kafka3:19094"]
-    
-});
-
-const consumer = kafka.consumer({"groupId": "agpt_cons"})
-
-console.log("Consumer Connecting.......")
-consumer.connect()
-
-console.log("Consumer Connected!")
-consumer.subscribe({
-        topic: "agpt",
-});
-
-
-//producer config and connection!
-
-const producer = kafka.producer();
-
-console.log("Producer Connecting.....");
-producer.connect();
-console.log("Producer Connected!");
-
-//consumer code
-//----------------------------------
-consumer.run({
-	//console.log("In consumer run\n")
-	eachMessage: ({ topic, partition, message }) =>  {
-		//heartbeat();
-		console.log('Received message', {
-			topic,
-			partition,
-			//key: message.key.toString(),
-			value: message.value.toString()
-		});
-		data = {
-			"topic": topic,
-			//"message": rq.params.message,
-			"partition": parseInt(partition),
-			"message in ascii": message.value.toString()
-		};
-		//if the message is new data then get request to getter to get the data 
-		//and on end we insert them on DB
-		
-		if(data["message in ascii"] === ""){
-
-		}
-
-		if(data["message in ascii"] === ""){
-			
-		}
-
-		//.... ifs = number of cases (e.g. new data, add new country..)	
-	}
-});
-//----------------------------------
-*/
 
 //function to read csv's per e.g. 1min and import it to DB
 var updateinterval=setInterval(InsertAndUpdateCsv,30000)
@@ -290,12 +253,6 @@ function InsertAndUpdateCsv() {
     
     }
 }
-
-
-
-
-
-
 
 //res.status(200).send(value[0]);
 
@@ -325,19 +282,20 @@ app.get("/getData/:country/:dataFrom/:dataTo/:typeOfEnergy", (req, res, next) =>
 app.get("/newData/:country", (req, res, next) => {
    
         var country=req.params.country.toString();
+        console.log("got a request for new data!");
+        // console.log("i will return:", New_Data[country]) 
         res.status(200).json(New_Data[country])
         
 });
 
-
-app.get("/getIniData/:country/:typeOfEnergy", (req, res, next) => {
+app.get("/getIniData/:country", (req, res, next) => {
 
         var country=req.params.country;
         console.log(country);
         var EnergyType=req.params.typeOfEnergy;
         // console.log(EnergyType.toString);
-        console.log("query =", "SELECT * from public." + country + " WHERE public." + country + ".productiontype = "+ "\'" + EnergyType + "\';");
-        var get_query=db.any("SELECT * from public." + country + " WHERE public." + country + ".productiontype = "+ "\'" + EnergyType + "\';")
+        console.log("query =", "SELECT * from public." + country + ";");
+        var get_query=db.any("SELECT * from public." + country + ";")
         .then((result) =>{
                 res.status(200).json(result);
         })

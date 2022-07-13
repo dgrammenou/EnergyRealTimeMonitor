@@ -1,5 +1,5 @@
 const express = require('express');
-const kafka = require('kafkajs');
+const {Kafka} = require('kafkajs');
 const pg = require('pg');
 var app = express();
 
@@ -19,7 +19,7 @@ const pgp = require('pg-promise')({
 pg.types.setTypeParser(1114, str => str);
 
 const db=pgp({
-        host:"localhost",
+        host:"host.docker.internal",
         port:5432,
         user:"postgres",
         password:"Dd2502!..",
@@ -47,6 +47,28 @@ current_month={}
 countries_dict={}
 
 New_Data={}
+
+
+//consumer and producer here
+// ----------------------------------
+const kafka = new Kafka({
+	"clientId": "SaaS-2022",
+	"brokers" :["kafka1:19092","kafka2:19093", "kafka3:19094"]
+});
+const consumer = kafka.consumer({"groupId": "phf_cons"})
+console.log("Consumer Connecting.......")
+consumer.connect()
+console.log("Consumer Connected!")
+consumer.subscribe({
+	topic: "phf",
+});
+
+//producer config and connection!
+const producer = kafka.producer();
+console.log("Producer Connecting.....");
+producer.connect();
+console.log("Producer Connected!");
+// ----------------------------------
 
 const responses = Object.create(null);
 
@@ -126,24 +148,37 @@ function ReadCsv(file){
             }
         }
        
-		Object.assign(New_Data,data1);
+		    Object.assign(New_Data,data1);
+        countryRow_list = []
+        counter_for_countries = 0;  
         
         for(var i=0;i<countries.length;i++){
-			countryRow_ = countries[i].toString();
+			    countryRow_ = countries[i].toString();
         	countryRow = countryRow_.split(",");
-			const countrydata=data1[countryRow[3].toLowerCase()]
-			if(countrydata.length!=0){
-				const query =pgp.helpers.insert(data1[countryRow[3].toLowerCase()],cs[i])
-				db.none(query)
-				.then(()=>{
-					console.log("all records inserted")
-				})
-				.catch(error => {
-					console.log("errorrrrrrr is", error)
-				}) 
-			}
-           
-      }
+          const countrydata=data1[countryRow[3].toLowerCase()]
+          if(countrydata.length!=0){
+            console.log("country =", countryRow[3]);
+            countryRow_list.push(countryRow[3]);
+            const query =pgp.helpers.insert(data1[countryRow[3].toLowerCase()],cs[i])
+            db.none(query)
+            .then(()=>{
+              console.log("all records inserted for country", countryRow_list[counter_for_countries])
+              const result = producer.send({
+                topic: "phf",
+                //replyId: replyId,
+                messages: [{
+                        "value": "NEW DATA:" + countryRow_list[counter_for_countries]                       
+                }]
+                
+              });
+              counter_for_countries += 1;
+            })
+            .catch(error => {
+              console.log("error is", error)
+            }) 
+          }
+
+        }
     
       }
     )
@@ -161,79 +196,6 @@ function InsertAndUpdateCsv() {
     
     }
 }
-
-// //consumer and producer here
-
-// const kafka = new Kafka({
-// 	"clientId": "SaaS-2022",
-// 	"brokers" :["kafka1:19092","kafka2:19093", "kafka3:19094"]
-
-// });
-
-// const consumer = kafka.consumer({"groupId": "phf_cons"})
-
-// console.log("Consumer Connecting.......")
-// consumer.connect()
-
-// console.log("Consumer Connected!")
-// consumer.subscribe({
-// 	topic: "phf",
-// });
-
-
-// //producer config and connection!
-
-// const producer = kafka.producer();
-
-// console.log("Producer Connecting.....");
-// producer.connect();
-// console.log("Producer Connected!");
-
-// //consumer code
-// //----------------------------------
-// consumer.run({
-// 	//console.log("In consumer run\n")
-// 	eachMessage: ({ topic, partition, message }) => /*res.send({ "topic":topic, "partiotion":partition, "message":message })}*/ {
-// 		//heartbeat();
-// 		console.log('Received message', {
-// 			topic,
-// 			partition,
-// 			//key: message.key.toString(),
-// 			value: message.value.toString()
-// 		});
-// 		data = {
-// 			"topic": topic,
-// 			//"message": rq.params.message,
-// 			"partition": parseInt(partition),
-// 			"message in ascii": message.value.toString()
-// 		};
-// 		//if the message is new data then get request to getter to get the data 
-// 		//and on end we insert them on DB
-		
-// 		if(data["message in ascii"] === ""){
-
-// 		}
-
-// 		if(data["message in ascii"] === ""){
-			
-// 		}
-
-// 		//.... ifs = number of cases (e.g. new data, add new country..)	
-// 	}
-// });
-// //----------------------------------
-
-// //function to read csv's per e.g. 1min and import it to DB
-
-// const result = producer.send({
-// 	topic: "phf",
-// 	//replyId: replyId,
-// 	messages: [{
-// 		"value": "MESSAGE TO BE SENT",
-// 		"data": [] 
-		
-// 	}]
-// });
 
 
 //res.status(200).send(value[0]);
@@ -261,9 +223,11 @@ app.get("/getData/:countryFrom/to/:countryTo/:dataFrom/:dataTo", (req, res, next
 
 });
 
-app.get("/newData/:countryFrom/to/:countryTo", (req, res, next) => {
+app.get("/newData/:country", (req, res, next) => {
 	
 	var country=req.params.country.toString();
+  console.log("got a request for new data!");
+  // console.log("i will return:", New_Data[country]) 
 	res.status(200).json(New_Data[country]);
 
 });	
@@ -272,9 +236,9 @@ app.get("/newData/:countryFrom/to/:countryTo", (req, res, next) => {
 app.get("/getIniData/:country", (req, res, next) => {
 	
 	var country=req.params.country;
-	
-	console.log("query =", "SELECT * from public." + country + " WHERE public." + country + ";");
-	var get_query=db.any("SELECT * from public." + country + " WHERE public." + country + ";")
+	console.log("ini data requested for country:", country);
+	console.log("query =", "SELECT * from public." + country + ";");
+	var get_query=db.any("SELECT * from public." + country + ";" )
 	.then((result) =>{
 			res.status(200).json(result);
 	})
