@@ -12,11 +12,11 @@ export class DataService {
     constructor(private httpClient: HttpClient){}
 
     dataActualTotalLoad(data: ActualTotalLoad) {
-        let params = new HttpParams();
-        params = params.set('date', data.date.getFullYear() + "-" + data.date.getMonth() + "-" + data.date.getDay());
-        params = params.set('country', data.country);
+            let params = new HttpParams();
+            params = params.set('date', data.date.getFullYear() + "-" + data.date.getMonth() + "-" + data.date.getDay());
+            params = params.set('country', data.country);
 
-        return this.httpClient.get<ChartDto>('http://localhost:7082/api/ActualTotalLoad/chart', {params}); 
+            return this.httpClient.get<ChartDto>('http://localhost:7082/api/ActualTotalLoad/chart', {params}); 
     }
     dataGenerationPerType(data: GenerationPerType) {
         let params = new HttpParams();
@@ -33,7 +33,6 @@ export class DataService {
         params = params.set('countryTo', data.countryTo);
 
         return this.httpClient.get<ChartDto>('http://localhost:7083/api/CrossBoarderFlow/chart', {params});  
-        
     } 
 
 }
