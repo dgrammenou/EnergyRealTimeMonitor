@@ -52,7 +52,7 @@ export class LoggingService{
         params = params.set('lastname', this.userValue?.lastName);
         params = params.set('email', this.userValue?.email);
          
-        this.httpClient.get('http://localhost:4020/api/users/login', {params: params}).pipe(take(1)).subscribe((data: any) => {
+        this.httpClient.get('http://paparrigopoulos.com:4020/api/users/login', {params: params}).pipe(take(1)).subscribe((data: any) => {
             
             if (!this.userValue) {
                 return ;
@@ -71,6 +71,6 @@ export class LoggingService{
         params = params.set('email', this.userValue?.email);
         params = params.set('extend', extend); 
         
-        return this.httpClient.get('http://localhost:4020/api/users/extend', {params: params});
+        return this.httpClient.get('http://paparrigopoulos.com:4020/api/users/extend', {params: params});
     }
 }
