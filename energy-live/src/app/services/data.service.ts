@@ -47,4 +47,14 @@ export class DataService {
         return this.httpClient.get<ChartDto>('http://localhost:7083/api/CrossBoarderFlow/chart', {params});  
     } 
 
+    resetDbAndCsvATL() {
+        return this.httpClient.get<void>('http://localhost:8082/atl/resetDb');
+    }
+    resetDbAndCsvAGPT() {
+        return this.httpClient.get<void>('http://localhost:8081/agpt/resetDb');
+    }
+    resetDbAndCsvFF() {
+        return this.httpClient.get<void>('http://localhost:8083/ff/resetDb');
+    }
+
 }
