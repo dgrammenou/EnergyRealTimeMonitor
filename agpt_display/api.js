@@ -171,9 +171,13 @@ app.get("/api/GenerationPerType/chart", (req, res, next) => {
 				console.log("result =", result)
 				result.sort(compare);
 				console.log("result after sort =", result);
-				return_dict = {name: "AGPT chart", series: []}
+				return_dict = {name: "AGPT chart", series: [], lastUpdate: "0000-00-00 00:00:00"}
 				return_list = []
 				for(var j =0; j < result.length; j++){
+					var current_date = result.updatetime.replace("T", " ").replace("Z", "");
+					if (return_dict.lastUpdate <= current_date){
+						return_dict.lastUpdate = current_date;
+					} 
 					return_list[j] = {name: j, value:result[j].actualgenerationpertype};
 				}
 				Object.assign(return_dict.series, return_list);

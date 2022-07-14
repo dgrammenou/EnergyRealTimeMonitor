@@ -176,9 +176,13 @@ app.get("/api/ActualTotalLoad/chart", (req, res, next) => {
 			console.log("result =", result)
 			result.sort(compare);
 			console.log("result after sort =", result);
-			return_dict = {name: "ATL chart", series: []}
+			return_dict = {name: "ATL chart", series: [], lastUpdate: "0000-00-00 00:00:00"}
 			return_list = []
 			for(var j =0; j < result.length; j++){
+				var current_date = result.updatetime.replace("T", " ").replace("Z", "");
+				if (return_dict.lastUpdate <= current_date){
+					return_dict.lastUpdate = current_date;
+				}
 				return_list[j] = {name: j, value:result[j].totalloadvalue};
 			}
 			Object.assign(return_dict.series, return_list);
