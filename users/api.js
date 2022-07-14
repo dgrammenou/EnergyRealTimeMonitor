@@ -25,7 +25,7 @@ function createNewUser(firstname, lastname, email) {
         daysLeft: 15,
     }
     knex('user').insert(user).then(() => console.log("data inserted"))
-    .catch((err) => { console.log(err); throw err }) 
+    .catch((err) => { console.log(err); }) 
 } 
 
 const express = require('express');
@@ -56,7 +56,7 @@ app.get('/api/users/login', (req, res) => {
             }
             
         })
-        .catch((err) => { console.log( err); throw err }) 
+        .catch((err) => { console.log( err);}) 
 });
 
 app.get('/api/users/extend', (req, res) => {
@@ -84,7 +84,7 @@ app.get('/api/users/extend', (req, res) => {
             }
             
         })
-        .catch((err) => { console.log( err); throw err }) 
+        .catch((err) => { console.log( err); }) 
 
 })
 
