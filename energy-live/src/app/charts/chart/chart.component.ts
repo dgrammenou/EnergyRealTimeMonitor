@@ -126,7 +126,7 @@ export class ChartComponent implements OnInit, OnDestroy {
       if (this.dataFullForGraph) {
         this.dataFullForGraph = this.isDataFull();
       }
-    }, 30000);
+    }, 5000);
     this.loggingService.getUserData();
   }
   ngOnDestroy(): void { 
@@ -241,7 +241,22 @@ export class ChartComponent implements OnInit, OnDestroy {
       else if (this.index === 3) {
         this.dataService.updateCrossBoarderFlow().pipe(take(1)).subscribe(() => {
         });
-      } 
+      }  
     }
+  }
+
+  onResetDb() { 
+    if (this.index === 1) {
+      this.dataService.resetDbAndCsvATL().pipe(take(1)).subscribe(() => {
+      });
+    }
+    else if (this.index === 2) {
+      this.dataService.resetDbAndCsvAGPT().pipe(take(1)).subscribe(() => {
+      });
+    }
+    else if (this.index === 3) {
+      this.dataService.resetDbAndCsvFF().pipe(take(1)).subscribe(() => {
+      });
+    }  
   }
 }
