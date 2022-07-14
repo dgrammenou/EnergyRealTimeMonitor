@@ -85,11 +85,12 @@ fs.createReadStream("../Countriescsv/countries_data.csv")
         current_month[countryRow[3].toLowerCase()]={}
         cs.push(new pgp.helpers.ColumnSet(['datetime','totalloadvalue','updatetime','index'],{table:countryRow[3].toLowerCase()}))
         countries_dict[countryRow[3].toLowerCase()]=i
-      }
      }
-    )
+  }
+)
 
-const arr_of_csv=['2022_01_28_19_ActualTotalLoad6.1.A.csv', '2022_01_28_20_ActualTotalLoad6.1.A.csv']
+const arr_of_atl_csv=["2022_01_01_00_ActualTotalLoad6.1.A.csv","2022_01_01_01_ActualTotalLoad6.1.A.csv","2022_01_01_02_ActualTotalLoad6.1.A.csv","2022_01_01_03_ActualTotalLoad6.1.A.csv","2022_01_01_05_ActualTotalLoad6.1.A.csv","2022_01_01_06_ActualTotalLoad6.1.A.csv","2022_01_01_07_ActualTotalLoad6.1.A.csv","2022_01_01_08_ActualTotalLoad6.1.A.csv","2022_01_01_09_ActualTotalLoad6.1.A.csv"]
+
 
 initialdate ="2022-01-01 00:00:00"
 
@@ -110,7 +111,7 @@ function ReadCsv(file){
                 data1[countryRow[3].toLowerCase()]=[]
         }
         var results=[];
-        filename=path.join('..','/ATLcsv/'+ file)
+        filename=path.join('..','/ATLfinalCsv/'+ file)
         y=fs.createReadStream(filename)
         .pipe(parse({delimiter:"\t",from_line:2}))
         .on('data',data =>results.push(data))
@@ -179,18 +180,18 @@ function ReadCsv(file){
 }
 
 
-var updateinterval=setInterval(InsertAndUpdateCsv,30000)
+// var updateinterval=setInterval(InsertAndUpdateCsv,30000)
 
-function InsertAndUpdateCsv() {
+// function InsertAndUpdateCsv() {
     
-     //console.log("im in insert and update")
-     ReadCsv(arr_of_csv[counter])
-     counter++
-     if(counter===2){
-        clearInterval(updateinterval);
+//      //console.log("im in insert and update")
+//      ReadCsv(arr_of_csv[counter])
+//      counter++
+//      if(counter===2){
+//         clearInterval(updateinterval);
     
-    }
-}
+//     }
+// }
 
 
 //res.status(200).send(value[0]);
@@ -239,6 +240,21 @@ app.get("/getIniData/:country", (req, res, next) => {
                 res.status(500).send("something went wrong");                
         });
 });
+
+//Βοηθητικό endpoint το οποίο χτυπάμε προκειμένου να διαβαστεί - γίνει import στη βάση το επόμενο csv
+app.get("/atl/ImportNewCsv", (req, res, next) => {
+ 
+        if(counter<arr_of_atl_csv.length){
+            ReadCsv(arr_of_atl_csv[counter])
+            counter++
+            res.status(200).send("New CSV imported\n")
+        }
+        else{
+    
+            res.status(200).send("No more CSVs to import\n")
+    
+        }
+    })
 
 app.get("/healthCheck", (req, res, next) => {
 	res.status(200).send("I am healthy");

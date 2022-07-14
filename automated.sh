@@ -18,9 +18,10 @@ printf "Phase 1: create docker images and download packages for each microservic
 
 for microservice in $@;
 do	
+		
 	printf "%s\n" ${microservice}
-	docker build ./${microservice}/ -t ${microservice}:v1.0
-	npm install
+	docker build ./${microservice} -t ${microservice}
+	npm install 
 done       	
 
 #phase_2

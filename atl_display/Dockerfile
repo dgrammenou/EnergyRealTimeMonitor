@@ -21,7 +21,7 @@ WORKDIR /app
 
 COPY . .
 RUN chmod +x health_check.sh
-
+RUN npm install
 
 CMD ["node", "startup_new.js"]
 EXPOSE 7082

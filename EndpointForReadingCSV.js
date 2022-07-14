@@ -18,8 +18,6 @@ app.get("/agpt/ImportNewCsv", (req, res, next) => {
         res.status(200).send("No more CSVs to import")
 
     }
-
-    
 })
 
 app.get("/atl/ImportNewCsv", (req, res, next) => {
@@ -34,11 +32,6 @@ app.get("/atl/ImportNewCsv", (req, res, next) => {
         res.status(200).send("No more CSVs to import")
 
     }
-
-    
-    
-    
-
 })
 
 app.get("/ff/ImportNewCsv", (req, res, next) => {

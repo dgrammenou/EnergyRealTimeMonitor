@@ -1,26 +1,26 @@
 
-const types = ["Biomass", 
-"Hydro Run-of-river and poundage", 
-"Hydro Water Reservoir",
-"Hydro Pumped Storage",
-"Solar",
-"Wind Onshore",
-"Wind Offshore",
-"Fossil Brown coal/Lignite"	, 
-"Fossil Hard coal", 
-"Fossil Oil",
-"Fossil Gas",
-"Geothermal",
-"Nuclear",
-"Other",
-"Other renewable",
-"Waste"]
+// const types = ["Biomass", 
+// "Hydro Run-of-river and poundage", 
+// "Hydro Water Reservoir",
+// "Hydro Pumped Storage",
+// "Solar",
+// "Wind Onshore",
+// "Wind Offshore",
+// "Fossil Brown coal/Lignite"	, 
+// "Fossil Hard coal", 
+// "Fossil Oil",
+// "Fossil Gas",
+// "Geothermal",
+// "Nuclear",
+// "Other",
+// "Other renewable",
+// "Waste"]
 
-//perday=24*types.length*60/30
+//perday=24*20*60/30
 //console.log("perday is ",perday)
-//perhour=types.length*60/30
+//perhour=20*60/30
 //console.log("perhour is ",perhour)
-//permin=types.length/30
+//permin=20/30
 //console.log("permin is ",permin)
 
 function calDifferencePerDays(initialdate,newdate){
@@ -39,11 +39,11 @@ function calDifferencePerDays(initialdate,newdate){
 }
 
 function calindex(initialdate,newdate,rescode){
-    perday=24*types.length*60/rescode
+    perday=24*20*60/rescode
 
-    perhour=types.length*60/rescode
+    perhour=20*60/rescode
 
-    permin=types.length/rescode
+    permin=20/rescode
 
     var old_date_split=initialdate.split(" ")
     var new_date_split=newdate.split(" ")

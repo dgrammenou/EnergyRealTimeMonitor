@@ -39,11 +39,11 @@ function calDifferencePerDays(initialdate,newdate){
 }
 
 function calindex(initialdate,newdate,rescode){
-    perday=24*types.length*60/rescode
+    perday=24*60/rescode
 
-    perhour=types.length*60/rescode
+    perhour=60/rescode
 
-    permin=types.length/rescode
+    permin=1/rescode
 
     var old_date_split=initialdate.split(" ")
     var new_date_split=newdate.split(" ")

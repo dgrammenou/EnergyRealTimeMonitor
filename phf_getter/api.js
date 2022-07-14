@@ -87,7 +87,7 @@ fs.createReadStream("../Countriescsv/countries_data.csv")
     }
 )
 
-const arr_of_csv=["2022_01_06_06_PhysicalFlows12.1.G.csv","2022_01_06_07_PhysicalFlows12.1.G.csv"]
+const arr_of_ff_csv=["2022_01_01_00_PhysicalFlows12.1.G.csv","2022_01_01_01_PhysicalFlows12.1.G.csv","2022_01_01_02_PhysicalFlows12.1.G.csv","2022_01_01_03_PhysicalFlows12.1.G.csv","2022_01_01_04_PhysicalFlows12.1.G.csv","2022_01_01_05_PhysicalFlows12.1.G.csv","2022_01_01_06_PhysicalFlows12.1.G.csv","2022_01_01_07_PhysicalFlows12.1.G.csv","2022_01_01_08_PhysicalFlows12.1.G.csv","2022_01_01_09_PhysicalFlows12.1.G.csv"]
 
 initialdate ="2022-01-01 00:00:00"
 
@@ -108,7 +108,7 @@ function ReadCsv(file){
        	data1[countryRow[3].toLowerCase()]=[]
     }
     var results=[];
-    filename=path.join('..','/FFcsv/'+ file)
+    filename=path.join('..','/FFfinalCsv/'+ file)
     y=fs.createReadStream(filename)
     .pipe(parse({delimiter:"\t",from_line:2}))
     .on('data',data =>results.push(data))
@@ -184,18 +184,18 @@ function ReadCsv(file){
     )
  }
 
-var updateinterval=setInterval(InsertAndUpdateCsv,30000)
+// var updateinterval=setInterval(InsertAndUpdateCsv,30000)
 
-function InsertAndUpdateCsv() {
+// function InsertAndUpdateCsv() {
     
-     //console.log("im in insert and update")
-     ReadCsv(arr_of_csv[counter])
-     counter++
-     if(counter===2){
-        clearInterval(updateinterval);
+//      //console.log("im in insert and update")
+//      ReadCsv(arr_of_csv[counter])
+//      counter++
+//      if(counter===2){
+//         clearInterval(updateinterval);
     
-    }
-}
+//     }
+// }
 
 
 //res.status(200).send(value[0]);
@@ -247,6 +247,21 @@ app.get("/getIniData/:country", (req, res, next) => {
 	});
 
 });	
+
+//Βοηθητικό endpoint το οποίο χτυπάμε προκειμένου να διαβαστεί - γίνει import στη βάση το επόμενο csv
+app.get("/ff/ImportNewCsv", (req, res, next) => {
+
+  if(counter<arr_of_ff_csv.length){
+      ReadCsv(arr_of_ff_csv[counter])
+      counter++
+      res.status(200).send("New CSV imported\n")
+  }
+  else{
+
+      res.status(200).send("No more CSVs to import\n")
+
+  }
+})
 
 app.get("/healthCheck", (req, res, next) => {
 	res.status(200).send("I am healthy");

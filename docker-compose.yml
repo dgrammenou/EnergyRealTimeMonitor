@@ -97,7 +97,7 @@ services:
      
   
   agpt_display: 
-    image: agpt_display:v1.0
+    image: agpt_display
     hostname: agpt_display
     ports:
       - "7081:7081" 
@@ -112,13 +112,13 @@ services:
       - atl_getter  
 
   agpt_getter: 
-    image: agpt_getter:v1.0
+    image: agpt_getter
     hostname: agpt_getter
     ports:
       - "8081:8081"    
     volumes:
       - ./Countriescsv:/Countriescsv
-      - ./AGPTcsv:/AGPTcsv  
+      - ./AGPTfinalCsv:/AGPTfinalCsv  
     extra_hosts:
       - "host.docker.internal:host-gateway"    
     depends_on:
@@ -127,7 +127,7 @@ services:
       - kafka3  
 
   atl_display: 
-    image: atl_display:v1.0
+    image: atl_display
     hostname: atl_display
     ports:
       - "7082:7082"
@@ -142,13 +142,13 @@ services:
       - atl_getter        
 
   atl_getter: 
-    image: atl_getter:v1.0
+    image: atl_getter
     hostname: atl_getter
     ports:
       - "8082:8082"
     volumes:
       - ./Countriescsv:/Countriescsv
-      - ./ATLcsv:/ATLcsv
+      - ./ATLfinalCsv:/ATLfinalCsv
     extra_hosts:
       - "host.docker.internal:host-gateway"    
     depends_on:
@@ -157,7 +157,7 @@ services:
       - kafka3 
 
   phf_display: 
-    image: phf_display:v1.0
+    image: phf_display
     hostname: phf_display
     ports:
       - "7083:7083"
@@ -172,13 +172,13 @@ services:
       - phf_getter  
 
   phf_getter: 
-    image: phf_getter:v1.0
+    image: phf_getter
     hostname: phf_getter
     ports:
       - "8083:8083"
     volumes:
       - ./Countriescsv:/Countriescsv
-      - ./FFcsv:/FFcsv
+      - ./FFfinalCsv:/FFfinalCsv
     extra_hosts:
       - "host.docker.internal:host-gateway"    
     depends_on:
@@ -186,6 +186,14 @@ services:
       - kafka2
       - kafka3
 
-        #users:
-        #image: users:v1.0
-        #hostname: users      
+  users:
+    image: users
+    hostname: users
+    ports:
+      - "4200:4200"     
+
+  energy-live-deploy:
+    image: energy-live-deploy
+    hostname: energy-live-deploy     
+    ports:
+      - "6543:6543"  

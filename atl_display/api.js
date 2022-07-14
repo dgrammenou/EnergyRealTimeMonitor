@@ -1,20 +1,33 @@
+// Απαραίτητα imports!
 const express = require('express');
 const {Kafka} = require('kafkajs');
 const pg = require('pg');
 const axios = require('axios');
 var app = express();
 
+//Συνάρτηση για sortarisma javascript object
+function compare( a, b ) {
+	if ( a.datetime < b.datetime ){
+	  return -1;
+	}
+	if ( a.datetime > b.datetime ){
+	  return 1;
+	}
+	return 0;
+}
+
+// Object το οποίο μας χρειάζεται προκειμένου να εξυπηρετεί clients που ζητάνε (ταυτόχρονα) ίδια δεδομένα προκειμένου να κάνουμε ένα SELECT στη βάση!
 const getData = Object.create(null);
 
+// Λίστα με τις χώρες που μας χρειάζεται.
 countries = ['al','am','at','az','ba','be','bg','by','cy','cz','de','dk','ee','es','fi','fr','gb','ge','gr','hr','hu','ie','it','lt','lu','lv','md','me','mk','no','pl','nl','mt','pt','ro','rs','se','si','sk','tr','ua','xk', 'ru', 'ch']
-
-const {Client} = require('pg');
 
 const pgp = require('pg-promise')({
 
 	capSQL: true 
 })
 
+// Παράμετροι για σύνδεση με τη βάση.
 const db=pgp({
 	host:"host.docker.internal",
 	port:5432,
@@ -23,13 +36,10 @@ const db=pgp({
 	database:"displayforatl"
 })
 
-
-
-
+// Σύνδεση με τη βάση!
 db.connect()
 
-//consumer and producer here
-
+// Δημιουργία Kafka consumer και producer! 
 const kafka = new Kafka({
 	"clientId": "SaaS-2022",
 	"brokers" :["kafka1:19092","kafka2:19093", "kafka3:19094"]
@@ -48,7 +58,6 @@ consumer.subscribe({
 
 
 //producer config and connection!
-
 const producer = kafka.producer();
 
 console.log("Producer Connecting.....");
@@ -56,46 +65,41 @@ producer.connect();
 console.log("Producer Connected!");
 
 
-
-
-
-//res.status(200).send(value[0]);
-
 //consumer code
 //----------------------------------
+//Παίρνουμε τα μηνύματα που λαμβάνουμε από το topic που έχουμε κάνει subscribe!
 consumer.run({
-	//console.log("In consumer run\n")
-	eachMessage: ({ topic, partition, message }) => /*res.send({ "topic":topic, "partiotion":partition, "message":message })}*/ {
-		//heartbeat();
+	eachMessage: ({ topic, partition, message }) => {
 		console.log('Received message', {
 			topic,
 			partition,
-			//key: message.key.toString(),
 			value: message.value.toString()
 		});
+
 		data = {
 			"topic": topic,
-			//"message": rq.params.message,
 			"partition": parseInt(partition),
 			"message in ascii": message.value.toString()
 		};
 
+		//Παίρνουμε το μήνυμα από τον αντίστοιχο getter!
 		var arr=data["message in ascii"].split(":")
-		//if the message is new data then get request to getter to get the data 
-		//and on end we insert them on DB
 
+		//Εάν το μήνυμα ξεκινάει με NEW DATA τότε πρέπει να χτυπήσουμε το αντίστοιχο endpoint του getter προκειμένου να πάρουμε τα καινούργια δεδομένα!
 		if(arr[0]=== "NEW DATA"){
 
 			url="http://atl_getter:8082/newData/" + arr[1].toLowerCase();
 			console.log("url =", url);
-			//axios get request to agpt getter for new data and insert new data to db
+
+			//Αξιοποιώντας το axios πραγματοποιούμε το GET request στον αντίστοιχο getter.
 			axios.get(url).then((response) =>{
-				//data to insert to db
-				// console.log(response.data)
 				const datafinal = Object.values(response.data);
-				// console.log("datafinal =", datafinal);
+
+				//Απαραίτητοι έλεγχοι για τα δεδομένα που λαμβάνουμε!
 				if(datafinal != undefined){
 					if(datafinal.length!=0){
+
+						//Άμα εν τέλει μας στείλει δεδομένα ο getter τα βάζουμε στη βάση (στο table της αντίστοιχης χώρας)!
 						const cs=new pgp.helpers.ColumnSet(['datetime','totalloadvalue','updatetime','index'],{table:arr[1].toLowerCase()})
 						const params =pgp.helpers.insert(datafinal,cs)
 						db.none(params)
@@ -115,75 +119,107 @@ consumer.run({
 
 
 
+//Endpoint το οποίο χτυπάει το frontend προκειμένου να λάβει τα καινούργια δεδομένα!
+app.get("/api/ActualTotalLoad/chart", (req, res, next) => {
 
-app.get("/api/:country/:date", (req, res, next) => {
-
-	var date = req.params.date
-
+	//Παίρνουμε τη παράμετρο date που μας δίνει το frontend.
+	var date = req.query.date
 	var date_start = date + " 00:00:00";
 	var date_end = date + " 23:59:59";
 
-	console.log("req = ", req.params);
-	if(!req.params) {
+	console.log("req = ", req.query);
+	if(!req.query) {
 		res.status(500).send("Invalid request format");
 		return;
 	} 
-	//check if data is <= to last data
+	
 	
 	const replyId = Math.random().toString().substr(2);
-	if(!getData[(req.params.country, req.params.generationType, req.params.date)]){
+
+	//Όπως προαναφέρθηκε το getData χρησιμοποιείται για να απαντάμε σε περισσότερους του ενός client (που θέλουν τα ίδια δεδομένα) με ένα SELECT στη βάση.
+	if(!getData[(req.query.country, req.query.generationType, req.query.date)]){
 		console.log("init array for getData");
-		getData[(req.params.country, req.params.generationType, req.params.date)] = [];
-	} 
-	getData[(req.params.country, req.params.generationType, req.params.date)].push([replyId, res]);
-	console.log(getData);
-	if(getData[(req.params.country, req.params.generationType, req.params.date)].length > 1){
+
+		//Άμα είναι ο πρώτος client που ζητά τα δεδομένα αυτά τότε δημιουργούμε την παρακάτω κενή λίστα
+		getData[(req.query.country, req.query.generationType, req.query.date)] = [];
+	}
+	
+	//Κάνουμε push τον καινούργιο client στη λίστα (άμα είναι ο πρώτος τότε θα είναι ο μόνος μέσα στη λίστα, αλλιώς απλά θα γίνει append στο τέλος της). 
+	getData[(req.query.country, req.query.generationType, req.query.date)].push([replyId, res]);
+
+	//avoid multiple DB requests
+	//Άμα (αφού έχουμε pusharei τον client στη λίστα) το μέγεθος της λίστας είναι μεγαλύτερο του 1 σημαίνει πως και άλλος/άλλοι client/s θέλει/ουν τα δεδομένα αυτά
+	//και για το λόγο αυτό δεν κάνουμε SELECT στη βάση αλλά περιμένουμε να μας απαντήσει προηγούμενο request κάνοντας έτσι μόνο ένα select στη βάση μας!
+	if(getData[(req.query.country, req.query.generationType, req.query.date)].length > 1){
 		console.log("someone else will respond to this request");
 		return;
 	}		
 
+	//Αλλιώς σημαίνει πως ο client αυτός είναι ο μόνος τη χρονική αυτή στιγμή που θέλει τα δεδομένα και για το λόγο αυτό κάνει το αντίστοιχο SELECT στη βάση!
 	else {
 
-		var country=req.params.country
-		var date=req.params.date
+		//Παίρνουμε τις υπόλοιπες παραμέτρους.
+		var country=req.query.country
+		var date=req.query.date
 		console.log("params =", "SELECT * FROM " + country + " WHERE datetime >= " + "\'" + date_start + "\' AND datetime <= " + "\'" + date_end + "\'" + ";")        
+
+		//Εκτελούμε κατάλληλο QUERY προκειμένου να πάρουμε τα δεδομένα!
 		var get_params= db.query(
 			"SELECT * FROM " + country + " WHERE datetime >= " + "\'" + date_start + "\' AND datetime <= " + "\'" + date_end + "\';"
 		)
 		.then((result) =>{
-			console.log(result);
-			for(var i=0; i<getData[(req.params.country, req.params.generationType, req.params.date)].length; i++){
-				getData[(req.params.country, req.params.generationType, req.params.date)][i][1].status(200).json(result);
+
+			console.log("result =", result)
+			result.sort(compare);
+			console.log("result after sort =", result);
+			return_dict = {name: "ATL chart", series: []}
+			return_list = []
+			for(var j =0; j < result.length; j++){
+				return_list[j] = {name: j, value:result[j].totalloadvalue};
 			}
-			getData[(req.params.country, req.params.generationType, req.params.date)] = [];
+			Object.assign(return_dict.series, return_list);
+			
+			//Στέλνουμε τα δεδομένα σε όσους τα έχουν ζητήσει/βρίσκονται στην αντίστοιχη λίστα!
+			for(var i=0; i<getData[(req.query.country, req.query.generationType, req.query.date)].length; i++){
+				getData[(req.query.country, req.query.generationType, req.query.date)][i][1].status(200).json(return_dict);
+			}
+
+			//Αρχικοποιούμε τη λίστα ξανά στο κενό αφού έχουμε απαντήσει στους clients!
+			getData[(req.query.country, req.query.generationType, req.query.date)] = [];
 		})
 		.catch((e) => {
 			console.log("error =", e);
 			res.status(500).send("something went wrong");                
 		}); 	
-
-		//Select from db the data and on end res.status(200).send(json Data) 
-		//on end also i should iterate throught the list (getData) of candidate (for the specific (country, genType, data)) clients and send them the data)
-		//after that pop them from the list (getData)
 	}
 
 });
+
+//Βοηθητικό endpoint.
+app.get("/api/healthCheck", (req, res, next) => {
+	res.status(200).send("I am healthy");
+}); 
 
 app.listen(7082, () => {
 	console.log("Server running on port 7082");
 });
 
-
+//Στο παρακάτω κώδικα κάνουμε ένα αρχικό GET request στον αντίστοιχο getter στο endpoint getInidata προκειμένου να γίνει η αρχικοποίηση της βάσης
+//με όλα τα δεδομένα που έχει στη βάση του ο getter!
+//Αυτό προφανώς το κάνουμε για το table της κάθε χώρας.
 for(var i = 0; i < countries.length; i++){
 	url="http://atl_getter:8082/getIniData/" + countries[i];
 	console.log("url =", url);
-	//axios get request to agpt getter for new data and insert new data to db
+
+	//Αξιοποιώντας το axios πραγματοποιούμε το GET request στον αντίστοιχο getter.
 	axios.get(url).then((response) =>{
-		// console.log(response.data)
 		const datafinal = Object.values(response.data);
-		console.log("datafinal =", datafinal);
+
+		//Απαραίτητοι έλεγχοι για τα δεδομένα που λαμβάνουμε!
 		if(datafinal != undefined){
 			if(datafinal.length!=0){
+				
+				//Άμα εν τέλει μας στείλει δεδομένα ο getter τα βάζουμε στη βάση (στο table της αντίστοιχης χώρας)!
 				const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],{table:arr[1].toLowerCase()})
 				const query =pgp.helpers.insert(datafinal, cs)
 				db.none(query)

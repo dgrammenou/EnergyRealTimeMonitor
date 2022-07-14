@@ -1,6 +1,6 @@
 FROM ubuntu:latest
 
-RUN apt-get update -y 
+RUN apt-get update -y --fix-missing
 
 ENV NODE_VERSION=16.13.0
 RUN apt-get install -y curl
@@ -19,7 +19,7 @@ RUN mkdir /app
 WORKDIR /app
 
 COPY . . 
-
+RUN npm install	
 
 CMD ["node", "api.js"]  
 EXPOSE 4020
