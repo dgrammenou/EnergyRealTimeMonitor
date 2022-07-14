@@ -23,7 +23,7 @@ export class DataService {
     }
 
     updateGenerationPerType() {
-        return this.httpClient.get<void>('http://localhost:8081/agpt/ImportNewCsv');  
+        return this.httpClient.get<void>('http://paparrigopoulos.com:8081/agpt/ImportNewCsv');  
     }
     dataGenerationPerType(data: GenerationPerType) {
         let params = new HttpParams();
@@ -31,12 +31,12 @@ export class DataService {
         params = params.set('country', data.country);
         params = params.set('generationType', data.generationType);
 
-        return this.httpClient.get<ChartDto>('http://localhost:7081/api/GenerationPerType/chart', {params});         
+        return this.httpClient.get<ChartDto>('http://paparrigopoulos.com:7081/api/GenerationPerType/chart', {params});         
     }
 
 
     updateCrossBoarderFlow() {
-        return this.httpClient.get<void>('http://localhost:8083/ff/ImportNewCsv');  
+        return this.httpClient.get<void>('http://paparrigopoulos.com:8083/ff/ImportNewCsv');  
     }
     dataCrossBoarderFlow(data: CrossBoarderFlow) {
         let params = new HttpParams();
@@ -44,17 +44,17 @@ export class DataService {
         params = params.set('countryFrom', data.countryFrom);
         params = params.set('countryTo', data.countryTo);
 
-        return this.httpClient.get<ChartDto>('http://localhost:7083/api/CrossBoarderFlow/chart', {params});  
+        return this.httpClient.get<ChartDto>('http://paparrigopoulos.com:7083/api/CrossBoarderFlow/chart', {params});  
     } 
 
     resetDbAndCsvATL() {
-        return this.httpClient.get<void>('http://localhost:8082/atl/resetDb');
+        return this.httpClient.get<void>('http://paparrigopoulos.com:8082/atl/resetDb');
     }
     resetDbAndCsvAGPT() {
-        return this.httpClient.get<void>('http://localhost:8081/agpt/resetDb');
+        return this.httpClient.get<void>('http://paparrigopoulos.com:8081/agpt/resetDb');
     }
     resetDbAndCsvFF() {
-        return this.httpClient.get<void>('http://localhost:8083/ff/resetDb');
+        return this.httpClient.get<void>('http://paparrigopoulos.com:8083/ff/resetDb');
     }
 
 }
