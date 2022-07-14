@@ -258,7 +258,72 @@ app.get("/atl/ImportNewCsv", (req, res, next) => {
             res.status(200).send("No more CSVs to import\n")
     
         }
-    })
+})
+
+app.get("/atl/ResetDB", (req, res, next) => {
+  
+        var query = pgp.helpers.concat([
+                'DELETE FROM  public.al',
+                'DELETE FROM  public.am',
+                'DELETE FROM  public.at',
+                'DELETE FROM  public.az',
+                'DELETE FROM  public.ba',
+                'DELETE FROM  public.be',
+                'DELETE FROM  public.bg',
+                'DELETE FROM  public.by',
+                'DELETE FROM  public.cy',
+                'DELETE FROM  public.cz',
+                'DELETE FROM  public.de',
+                'DELETE FROM  public.dk',
+                'DELETE FROM  public.ee',
+                'DELETE FROM  public.es',
+                'DELETE FROM  public.fi',
+                'DELETE FROM  public.fr',
+                'DELETE FROM  public.gb',
+                'DELETE FROM  public.ge',
+                'DELETE FROM  public.gr',
+                'DELETE FROM  public.hr',
+                'DELETE FROM  public.hu',
+                'DELETE FROM  public.ie',
+                'DELETE FROM  public.it',
+                'DELETE FROM  public.lt',
+                'DELETE FROM  public.lu',
+                'DELETE FROM  public.lv',
+                'DELETE FROM  public.md',
+                'DELETE FROM  public.me',
+                'DELETE FROM  public.mk',
+                'DELETE FROM  public.no',
+                'DELETE FROM  public.pl',
+                'DELETE FROM  public.nl',
+                'DELETE FROM  public.mt',
+                'DELETE FROM  public.pt',
+                'DELETE FROM  public.ro',
+                'DELETE FROM  public.rs;',
+                'DELETE FROM  public.se',
+                'DELETE FROM  public.si',
+                'DELETE FROM  public.sk',
+                'DELETE FROM  public.tr',
+                'DELETE FROM  public.ua',
+                'DELETE FROM  public.xk',
+                'DELETE FROM  public.ch',
+                'DELETE FROM  public.ru'
+        ])
+        db.none(query)
+        .then(()=>{
+                console.log("all records for display deleted!")
+                counter = 0; 
+                for(var i=0;i<countries.length;i++){
+                        countryRow_ = countries[i].toString();
+                        countryRow = countryRow_.split(",");
+                        current_month[countryRow[3].toLowerCase()]={}
+                }
+
+        })
+        .catch(error => {
+                console.log("error is", error)
+        })
+})
+
 
 app.get("/healthCheck", (req, res, next) => {
 	res.status(200).send("I am healthy");
