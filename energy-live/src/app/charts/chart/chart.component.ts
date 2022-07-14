@@ -228,4 +228,20 @@ export class ChartComponent implements OnInit, OnDestroy {
 
     return false;
   }
+  onNewCsv() {
+    if (this.dataFullForGraph) {
+      if (this.index === 1) {
+        this.dataService.updateActualTotalLoad().pipe(take(1)).subscribe(() => {
+        });
+      }
+      else if (this.index === 2) {
+        this.dataService.updateGenerationPerType().pipe(take(1)).subscribe(() => {
+        });
+      }
+      else if (this.index === 3) {
+        this.dataService.updateCrossBoarderFlow().pipe(take(1)).subscribe(() => {
+        });
+      } 
+    }
+  }
 }

@@ -111,6 +111,10 @@
         <div class="w-50 d-flex justify-content-around mt-2">
             <p>Latest Update: {{latestUpdate}}</p>
         </div> 
+        <div class="flex my-2">
+            <button class="btn btn-primary" style="width: 15%" (click)="onNewCsv()">Import CSV</button>  
+            (It will update in the 30s interval)
+        </div>
         <div class="d-flex" style="margin-left: 4.5rem;"> 
             <button class="btn btn-primary" (click)="onSaveAsPng()">Save as svg</button>
             <button class="btn btn-primary mx-5" (click)="onSaveData()">Save data</button>   

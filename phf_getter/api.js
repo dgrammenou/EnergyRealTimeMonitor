@@ -1,7 +1,11 @@
 const express = require('express');
 const {Kafka} = require('kafkajs');
 const pg = require('pg');
-var app = express();
+
+const cors = require('cors');
+
+const app = express()
+app.use(cors())  
 
 const path=require('path');
 const {parse }=require('csv-parse');
