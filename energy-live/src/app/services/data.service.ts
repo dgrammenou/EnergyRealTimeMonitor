@@ -51,19 +51,19 @@ export class DataService {
         return this.httpClient.get<void>('https://paparrigopoulos.com/api/getter/atl/ResetDB');
     }
     resetDbAndCsvATLDisplay() {
-        return this.httpClient.get<void>('https://paparrigopoulos.com/api/display//api/display/ActualTotalLoad/ResetDB');
+        return this.httpClient.get<void>('https://paparrigopoulos.com/api/display/api/display/atl/ResetDB');
     }
     resetDbAndCsvAGPTGetter() {
         return this.httpClient.get<void>('https://paparrigopoulos.com/api/getter/agpt/ResetDB');
     }
     resetDbAndCsvAGPTDisplay() {
-        return this.httpClient.get<void>('https://paparrigopoulos.com/api/display/GenerationPerType/ResetDB');
+        return this.httpClient.get<void>('https://paparrigopoulos.com/api/display/agpt/ResetDB');
     }
     resetDbAndCsvFFGetter() {
         return this.httpClient.get<void>('https://paparrigopoulos.com/api/getter/ff/ResetDB');
     }
     resetDbAndCsvFFDisplay() {
-        return this.httpClient.get<void>('https://paparrigopoulos.com/api/display/CrossBoarderFlow/ResetDB');
+        return this.httpClient.get<void>('https://paparrigopoulos.com/api/display/ff/ResetDB');
     }
 
 }

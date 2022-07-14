@@ -191,8 +191,8 @@ services:
     hostname: users
     ports:
       - "4020:4020"     
-    # volumes:
-    #   - /mnt/AEBA35E3BA35A8AB/Σχολή/Ροή\ Λ/Τεχνολογίες\ Υπηρεσιών\ Λογισμικού/saas2022-23/users/:app
+    volumes:
+      - ./users.sqlite/:app
 
   energy-live-deploy:
     image: energy-live-deploy
