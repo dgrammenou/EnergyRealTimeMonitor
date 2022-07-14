@@ -36,7 +36,7 @@ app.use(cors())
 
 const port = 4020;
 
-app.get('/api/users/login', (req, res) => {
+app.get('/api/users/login', (   req, res) => {
     const user = req.query;
     console.log("start: ", user);
     knex.from('user').select("*")

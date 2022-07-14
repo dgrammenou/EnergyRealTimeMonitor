@@ -231,32 +231,29 @@ export class ChartComponent implements OnInit, OnDestroy {
   onNewCsv() {
     if (this.dataFullForGraph) {
       if (this.index === 1) {
-        this.dataService.updateActualTotalLoad().pipe(take(1)).subscribe(() => {
-        });
+        this.dataService.updateActualTotalLoad().pipe(take(1)).subscribe(() => { });
       }
       else if (this.index === 2) {
-        this.dataService.updateGenerationPerType().pipe(take(1)).subscribe(() => {
-        });
+        this.dataService.updateGenerationPerType().pipe(take(1)).subscribe(() => { });
       }
       else if (this.index === 3) {
-        this.dataService.updateCrossBoarderFlow().pipe(take(1)).subscribe(() => {
-        });
+        this.dataService.updateCrossBoarderFlow().pipe(take(1)).subscribe(() => { });
       }  
     }
   }
 
   onResetDb() { 
     if (this.index === 1) {
-      this.dataService.resetDbAndCsvATL().pipe(take(1)).subscribe(() => {
-      });
+      this.dataService.resetDbAndCsvATLDisplay().pipe(take(1)).subscribe(() => {});
+      this.dataService.resetDbAndCsvATLGetter().pipe(take(1)).subscribe(() => {});
     }
     else if (this.index === 2) {
-      this.dataService.resetDbAndCsvAGPT().pipe(take(1)).subscribe(() => {
-      });
+      this.dataService.resetDbAndCsvAGPTDisplay().pipe(take(1)).subscribe(() => {  });
+      this.dataService.resetDbAndCsvAGPTGetter().pipe(take(1)).subscribe(() => {  });
     }
     else if (this.index === 3) {
-      this.dataService.resetDbAndCsvFF().pipe(take(1)).subscribe(() => {
-      });
+      this.dataService.resetDbAndCsvFFDisplay().pipe(take(1)).subscribe(() => { });
+      this.dataService.resetDbAndCsvFFGetter().pipe(take(1)).subscribe(() => { });
     }  
   }
 }
