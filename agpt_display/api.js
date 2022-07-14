@@ -269,30 +269,30 @@ app.listen(7081, () => {
 //Στο παρακάτω κώδικα κάνουμε ένα αρχικό GET request στον αντίστοιχο getter στο endpoint getInidata προκειμένου να γίνει η αρχικοποίηση της βάσης
 //με όλα τα δεδομένα που έχει στη βάση του ο getter!
 //Αυτό προφανώς το κάνουμε για το table της κάθε χώρας.
-counter_for_countries = 0;
-for(var i = 0; i < countries.length; i++){
-	url="http://agpt_getter:8081/getIniData/" + countries[i];
-	console.log("url =", url);
-	//Αξιοποιώντας το axios πραγματοποιούμε το GET request στον αντίστοιχο getter.
-	axios.get(url).then((response) =>{
-		const datafinal = Object.values(response.data);
-		//Απαραίτητοι έλεγχοι για τα δεδομένα που λαμβάνουμε!
-		if(datafinal != undefined){
-			if(datafinal.length!=0){
-				//Άμα εν τέλει μας στείλει δεδομένα ο getter τα βάζουμε στη βάση (στο table της αντίστοιχης χώρας)!
-				const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],
-					{table: countries[counter_for_countries].toLowerCase()}
-				);
-				const query =pgp.helpers.insert(datafinal, cs)
-				db.none(query)
-				.then(()=>{
-					console.log("all records for display inserted")
-				})
-				.catch(error => {
-					console.log("error is", error)
-				})  		
-			}
-			counter_for_countries++;	
-		}
-	})
-}
+// counter_for_countries = 0;
+// for(var i = 0; i < countries.length; i++){
+// 	url="http://agpt_getter:8081/getIniData/" + countries[i];
+// 	console.log("url =", url);
+// 	//Αξιοποιώντας το axios πραγματοποιούμε το GET request στον αντίστοιχο getter.
+// 	axios.get(url).then((response) =>{
+// 		const datafinal = Object.values(response.data);
+// 		//Απαραίτητοι έλεγχοι για τα δεδομένα που λαμβάνουμε!
+// 		if(datafinal != undefined){
+// 			if(datafinal.length!=0){
+// 				//Άμα εν τέλει μας στείλει δεδομένα ο getter τα βάζουμε στη βάση (στο table της αντίστοιχης χώρας)!
+// 				const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],
+// 					{table: countries[counter_for_countries].toLowerCase()}
+// 				);
+// 				const query =pgp.helpers.insert(datafinal, cs)
+// 				db.none(query)
+// 				.then(()=>{
+// 					console.log("all records for display inserted")
+// 				})
+// 				.catch(error => {
+// 					console.log("error is", error)
+// 				})  		
+// 			}
+// 			counter_for_countries++;	
+// 		}
+// 	})
+// }
