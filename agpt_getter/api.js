@@ -30,7 +30,7 @@ const pgp = require('pg-promise')({
 pg.types.setTypeParser(1114, str => str);
 
 const db=pgp({
-        host:"paparrigopoulos.com", // host.docker.internal
+        host:"host.docker.internal",
         port:5432,
         user:"postgres",
         password:"Dd2502!..",
