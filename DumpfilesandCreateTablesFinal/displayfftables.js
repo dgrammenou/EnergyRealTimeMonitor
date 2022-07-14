@@ -13,13 +13,13 @@ const pool=new Pool ({
     host: "localhost",
     database:"displayforff",
     password:"Dd2502!..",
-    port: 5432
+    port: 5434
 })
 
 results=[]
 
 
-filename=path.join('..','/Countriescsv/countries_data.csv')
+filename=path.join('.','/countries_data.csv')
 y=fs.createReadStream(filename)
 .pipe(parse({delimiter:";",from_line:2}))
 .on('data',data =>results.push(data))

@@ -1,18 +1,19 @@
 #phase_0
 ##clear DB
 
-printf "Phase 0: clear DB!\n"
+##printf "Phase 0: clear DB!\n"
 
-node ./clear_db/clear_db.js getterforagpt
-node ./clear_db/clear_db.js getterforatl
-node ./clear_db/clear_db.js getterforff
-node ./clear_db/clear_db.js displayforagpt
-node ./clear_db/clear_db.js displayforatl
-node ./clear_db/clear_db.js displayforff
+##node ./clear_db/clear_db.js getterforagpt
+##node ./clear_db/clear_db.js getterforatl
+##node ./clear_db/clear_db.js getterforff
+##node ./clear_db/clear_db.js displayforagpt
+##node ./clear_db/clear_db.js displayforatl
+##node ./clear_db/clear_db.js displayforff
 
 
 #phase_1
-##create images and npm npm install
+##create images
+#docker-compose rm -svf
 
 printf "Phase 1: create docker images and download packages for each microservice!\n"
 
@@ -21,9 +22,11 @@ do
 		
 	printf "%s\n" ${microservice}
 	docker build ./${microservice} -t ${microservice}
-	npm install 
+	
+	#npm install
+        #sudo rm ./postgres_data/"${microservice}_db/*"
 done       	
-
+#docker volume prune
 #phase_2
 ##create db
 ##sudo install pg_dump
@@ -33,10 +36,11 @@ done
 printf "Phase 2: setupt kafka broker and zookeeper and make sure that they are alive (check their status)!\n"
 
 docker-compose up -d zoo1
-sleep 15
+##sleep 15
 docker-compose up -d kafka1 
 docker-compose up -d kafka2
 docker-compose up -d kafka3
+
 sleep 5
 
 kafka1_status=$( netstat -at | grep 9092 )
@@ -119,8 +123,33 @@ fi
 sleep 5
 
 ##phase_4
+printf "create Table for each DB!\n"
 
-printf "Phase 4: time to wake up all microservces! \n"
+docker-compose up -d  agpt_display_db
+sleep 1
+node DumpfilesandCreateTablesFinal/displayagpttables.js
+docker-compose up -d  atl_display_db
+sleep 1
+node DumpfilesandCreateTablesFinal/displayatltables.js
+docker-compose up -d  phf_display_db
+sleep 1
+node DumpfilesandCreateTablesFinal/displayfftables.js
+
+docker-compose up -d  agpt_getter_db
+sleep 1
+node DumpfilesandCreateTablesFinal/agpttables.js
+docker-compose up -d  atl_getter_db
+sleep 1
+node DumpfilesandCreateTablesFinal/atltables.js
+docker-compose up -d  phf_getter_db
+sleep 1
+node DumpfilesandCreateTablesFinal/fftables.js
+
+sleep 5
+
+##phase_5
+
+printf "Phase 5: time to wake up all microservces! \n"
 
 printf "docker-compose up -d!\n"
 docker-compose up -d

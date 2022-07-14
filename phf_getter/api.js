@@ -23,7 +23,7 @@ const pgp = require('pg-promise')({
 pg.types.setTypeParser(1114, str => str);
 
 const db=pgp({
-        host:"host.docker.internal",
+        host:"phf_getter_db",
         port:5432,
         user:"postgres",
         password:"Dd2502!..",
@@ -324,6 +324,7 @@ app.get("/ff/ResetDB", (req, res, next) => {
                 countryRow = countryRow_.split(",");
                 current_month[countryRow[3].toLowerCase()]={}
         }
+        res.status(200).send("DB cleared and CSV counter set 0!")
       })
       .catch(error => {
         console.log("error is", error)

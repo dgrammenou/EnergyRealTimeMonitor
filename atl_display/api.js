@@ -33,7 +33,7 @@ const pgp = require('pg-promise')({
 
 // Παράμετροι για σύνδεση με τη βάση.
 const db=pgp({
-	host:"host.docker.internal",
+	host:"atl_display_db",
 	port:5432,
 	user:"postgres",
 	password:"Dd2502!..",
@@ -118,6 +118,9 @@ consumer.run({
 					}
 				}
 			})
+			.catch((error) => {
+				console.log(error)
+			})
 		}
 
 	}
@@ -181,7 +184,9 @@ app.get("/api/ActualTotalLoad/chart", (req, res, next) => {
 			return_dict = {name: "ATL chart", series: [], lastUpdate: "0000-00-00 00:00:00"}
 			return_list = []
 			for(var j =0; j < result.length; j++){
-				var current_date = result.updatetime.replace("T", " ").replace("Z", "");
+				console.log("result.updatetime =", result[j].updatetime);
+				var date_string = result[j].updatetime.toString();
+				var current_date = date_string.replace("T", " ").replace("Z", "");
 				if (return_dict.lastUpdate <= current_date){
 					return_dict.lastUpdate = current_date;
 				}
@@ -208,50 +213,50 @@ app.get("/api/ActualTotalLoad/chart", (req, res, next) => {
 app.get("/atl/ResetDB", (req, res, next) => {
   
 	var query = pgp.helpers.concat([
-			'DELETE FROM  public.al',
-			'DELETE FROM  public.am',
-			'DELETE FROM  public.at',
-			'DELETE FROM  public.az',
-			'DELETE FROM  public.ba',
-			'DELETE FROM  public.be',
-			'DELETE FROM  public.bg',
-			'DELETE FROM  public.by',
-			'DELETE FROM  public.cy',
-			'DELETE FROM  public.cz',
-			'DELETE FROM  public.de',
-			'DELETE FROM  public.dk',
-			'DELETE FROM  public.ee',
-			'DELETE FROM  public.es',
-			'DELETE FROM  public.fi',
-			'DELETE FROM  public.fr',
-			'DELETE FROM  public.gb',
-			'DELETE FROM  public.ge',
-			'DELETE FROM  public.gr',
-			'DELETE FROM  public.hr',
-			'DELETE FROM  public.hu',
-			'DELETE FROM  public.ie',
-			'DELETE FROM  public.it',
-			'DELETE FROM  public.lt',
-			'DELETE FROM  public.lu',
-			'DELETE FROM  public.lv',
-			'DELETE FROM  public.md',
-			'DELETE FROM  public.me',
-			'DELETE FROM  public.mk',
-			'DELETE FROM  public.no',
-			'DELETE FROM  public.pl',
-			'DELETE FROM  public.nl',
-			'DELETE FROM  public.mt',
-			'DELETE FROM  public.pt',
-			'DELETE FROM  public.ro',
-			'DELETE FROM  public.rs;',
-			'DELETE FROM  public.se',
-			'DELETE FROM  public.si',
-			'DELETE FROM  public.sk',
-			'DELETE FROM  public.tr',
-			'DELETE FROM  public.ua',
-			'DELETE FROM  public.xk',
-			'DELETE FROM  public.ch',
-			'DELETE FROM  public.ru'
+		'DELETE FROM  public.al',
+		'DELETE FROM  public.am',
+		'DELETE FROM  public.at',
+		'DELETE FROM  public.az',
+		'DELETE FROM  public.ba',
+		'DELETE FROM  public.be',
+		'DELETE FROM  public.bg',
+		'DELETE FROM  public.by',
+		'DELETE FROM  public.cy',
+		'DELETE FROM  public.cz',
+		'DELETE FROM  public.de',
+		'DELETE FROM  public.dk',
+		'DELETE FROM  public.ee',
+		'DELETE FROM  public.es',
+		'DELETE FROM  public.fi',
+		'DELETE FROM  public.fr',
+		'DELETE FROM  public.gb',
+		'DELETE FROM  public.ge',
+		'DELETE FROM  public.gr',
+		'DELETE FROM  public.hr',
+		'DELETE FROM  public.hu',
+		'DELETE FROM  public.ie',
+		'DELETE FROM  public.it',
+		'DELETE FROM  public.lt',
+		'DELETE FROM  public.lu',
+		'DELETE FROM  public.lv',
+		'DELETE FROM  public.md',
+		'DELETE FROM  public.me',
+		'DELETE FROM  public.mk',
+		'DELETE FROM  public.no',
+		'DELETE FROM  public.pl',
+		'DELETE FROM  public.nl',
+		'DELETE FROM  public.mt',
+		'DELETE FROM  public.pt',
+		'DELETE FROM  public.ro',
+		'DELETE FROM  public.rs;',
+		'DELETE FROM  public.se',
+		'DELETE FROM  public.si',
+		'DELETE FROM  public.sk',
+		'DELETE FROM  public.tr',
+		'DELETE FROM  public.ua',
+		'DELETE FROM  public.xk',
+		'DELETE FROM  public.ch',
+		'DELETE FROM  public.ru'
 	])
 	db.none(query)
 	.then(()=>{
@@ -292,7 +297,7 @@ for(var i = 0; i < countries.length; i++){
 				
 				//Άμα εν τέλει μας στείλει δεδομένα ο getter τα βάζουμε στη βάση (στο table της αντίστοιχης χώρας)!
 				console.log(countries[counter_for_countries])
-				const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],{table: countries[counter_for_countries].toLowerCase()})
+				const cs=new pgp.helpers.ColumnSet(['datetime','totalloadvalue','updatetime','index'],{table: countries[counter_for_countries].toLowerCase()})
 				const query =pgp.helpers.insert(datafinal, cs)
 				db.none(query)
 				.then(()=>{
@@ -305,5 +310,8 @@ for(var i = 0; i < countries.length; i++){
 			
 			counter_for_countries++;
 		}
+	})
+	.catch((error) => {
+		console.log(error)
 	})
 }	

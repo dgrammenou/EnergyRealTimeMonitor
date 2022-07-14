@@ -198,4 +198,86 @@ services:
     image: energy-live-deploy
     hostname: energy-live-deploy     
     ports:
-      - "6543:6543"  
+      - "6543:6543"
+
+##databases:
+  agpt_display_db:
+    image: postgres
+    hostname: agpt_display_db
+    ports: 
+      - "5432:5432"       
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "Dd2502!.."
+      POSTGRES_DB: "displayforagpt"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+        - ./postgres_data/agpt_display_db:/var/lib/postgresql/data/pgdata
+
+  atl_display_db:
+    image: postgres
+    hostname: atl_display_db
+    ports: 
+      - "5433:5432"       
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "Dd2502!.."
+      POSTGRES_DB: "displayforatl"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+        - ./postgres_data/atl_display_db:/var/lib/postgresql/data/pgdata
+
+  phf_display_db:
+    image: postgres
+    hostname: phf_display_db
+    ports: 
+      - "5434:5432"       
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "Dd2502!.."
+      POSTGRES_DB: "displayforff"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+        - ./postgres_data/phf_display_db:/var/lib/postgresql/data/pgdata
+
+  agpt_getter_db:
+    image: postgres
+    hostname: agpt_getter_db
+    ports: 
+      - "5435:5432"       
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "Dd2502!.."
+      POSTGRES_DB: "getterforagpt"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+        - ./postgres_data/agpt_getter_db:/var/lib/postgresql/data/pgdata
+
+  atl_getter_db:
+    image: postgres
+    hostname: atl_getter_db
+    ports: 
+      - "5436:5432"       
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "Dd2502!.."
+      POSTGRES_DB: "getterforatl"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+        - ./postgres_data/atl_getter_db:/var/lib/postgresql/data/pgdata
+
+  phf_getter_db:
+    image: postgres
+    hostname: phf_getter_db
+    ports: 
+      - "5437:5432"       
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "Dd2502!.."
+      POSTGRES_DB: "getterforff"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+        - ./postgres_data/phf_getter_db:/var/lib/postgresql/data/pgdata                        
+
+        
+
