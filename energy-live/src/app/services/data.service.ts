@@ -48,22 +48,22 @@ export class DataService {
     } 
 
     resetDbAndCsvATLGetter() {
-        return this.httpClient.get<void>('https://paparrigopoulos.com/api/getter/atl/resetDB');
+        return this.httpClient.get<void>('https://paparrigopoulos.com/api/getter/atl/ResetDB');
     }
     resetDbAndCsvATLDisplay() {
-        return this.httpClient.get<void>('https://paparrigopoulos.com/api/display//api/display/ActualTotalLoad/resetDB');
+        return this.httpClient.get<void>('https://paparrigopoulos.com/api/display//api/display/ActualTotalLoad/ResetDB');
     }
     resetDbAndCsvAGPTGetter() {
-        return this.httpClient.get<void>('https://paparrigopoulos.com/api/getter/agpt/resetDB');
+        return this.httpClient.get<void>('https://paparrigopoulos.com/api/getter/agpt/ResetDB');
     }
     resetDbAndCsvAGPTDisplay() {
-        return this.httpClient.get<void>('https://paparrigopoulos.com/api/display/GenerationPerType/resetDB');
+        return this.httpClient.get<void>('https://paparrigopoulos.com/api/display/GenerationPerType/ResetDB');
     }
     resetDbAndCsvFFGetter() {
-        return this.httpClient.get<void>('https://paparrigopoulos.com/api/getter/ff/resetDB');
+        return this.httpClient.get<void>('https://paparrigopoulos.com/api/getter/ff/ResetDB');
     }
     resetDbAndCsvFFDisplay() {
-        return this.httpClient.get<void>('https://paparrigopoulos.com/api/display/CrossBoarderFlow/resetDB');
+        return this.httpClient.get<void>('https://paparrigopoulos.com/api/display/CrossBoarderFlow/ResetDB');
     }
 
 }
