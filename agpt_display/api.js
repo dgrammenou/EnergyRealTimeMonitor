@@ -135,23 +135,23 @@ app.get("/api/GenerationPerType/chart", (req, res, next) => {
 	}
 	
 	
-	const replyId = Math.random().toString().substr(2);
+	// const replyId = Math.random().toString().substr(2);
 	//Όπως προαναφέρθηκε το getData χρησιμοποιείται για να απαντάμε σε περισσότερους του ενός client (που θέλουν τα ίδια δεδομένα) με ένα SELECT στη βάση.
-	if(!getData[(req.query.country, req.query.generationType, req.query.date)]){
-		console.log("init array for getData");
-		//Άμα είναι ο πρώτος client που ζητά τα δεδομένα αυτά τότε δημιουργούμε την παρακάτω κενή λίστα  
-		getData[(req.query.country, req.query.generationType, req.query.date)] = [];
-	}
+	// if(!getData[(req.query.country, req.query.generationType, req.query.date)]){
+	// 	console.log("init array for getData");
+	// 	//Άμα είναι ο πρώτος client που ζητά τα δεδομένα αυτά τότε δημιουργούμε την παρακάτω κενή λίστα  
+	// 	getData[(req.query.country, req.query.generationType, req.query.date)] = [];
+	// }
 	
 	//Κάνουμε push τον καινούργιο client στη λίστα (άμα είναι ο πρώτος τότε θα είναι ο μόνος μέσα στη λίστα, αλλιώς απλά θα γίνει append στο τέλος της). 
-	getData[(req.query.country, req.query.generationType, req.query.date)].push([replyId, res]);
+	// getData[(req.query.country, req.query.generationType, req.query.date)].push([replyId, res]);
 	//avoid multiple DB requests
 	//Άμα (αφού έχουμε pusharei τον client στη λίστα) το μέγεθος της λίστας είναι μεγαλύτερο του 1 σημαίνει πως και άλλος/άλλοι client/s θέλει/ουν τα δεδομένα αυτά
 	//και για το λόγο αυτό δεν κάνουμε SELECT στη βάση αλλά περιμένουμε να μας απαντήσει προηγούμενο request κάνοντας έτσι μόνο ένα select στη βάση μας!  
-	if(getData[(req.query.country, req.query.generationType, req.query.date)].length > 1){
-		console.log("someone else will respond to this request");
-		return;
-	}	
+	// if(getData[(req.query.country, req.query.generationType, req.query.date)].length > 1){
+	// 	console.log("someone else will respond to this request");
+	// 	return;
+	// }	
 	
 	//Αλλιώς σημαίνει πως ο client αυτός είναι ο μόνος τη χρονική αυτή στιγμή που θέλει τα δεδομένα και για το λόγο αυτό κάνει το αντίστοιχο SELECT στη βάση!
 	else {
@@ -181,17 +181,17 @@ app.get("/api/GenerationPerType/chart", (req, res, next) => {
 					return_list[j] = {name: j, value:result[j].actualgenerationpertype};
 				}
 				Object.assign(return_dict.series, return_list);
-
+				res.status(200).send(return_dict)	
 				//Στέλνουμε τα δεδομένα σε όσους τα έχουν ζητήσει/βρίσκονται στην αντίστοιχη λίστα!
-			 	for(var i=0; i<getData[(req.query.country, req.query.generationType, req.query.date)].length; i++){
-					getData[(req.query.country, req.query.generationType, req.query.date)][i][1].status(200).json(return_dict);
-				}
+			 	// for(var i=0; i<getData[(req.query.country, req.query.generationType, req.query.date)].length; i++){
+				// 	getData[(req.query.country, req.query.generationType, req.query.date)][i][1].status(200).json(return_dict);
+				// }
 
-				//Αρχικοποιούμε τη λίστα ξανά στο κενό αφού έχουμε απαντήσει στους clients!
-				getData[(req.query.country, req.query.generationType, req.query.date)] = [];
+				// //Αρχικοποιούμε τη λίστα ξανά στο κενό αφού έχουμε απαντήσει στους clients!
+				// getData[(req.query.country, req.query.generationType, req.query.date)] = [];
 		 })
 		 .catch((e) => {
-				 res.status(500).send("something went wrong");                
+				 res.status(500).send("something went wrong.\n");                
 		 });
 	}
 
