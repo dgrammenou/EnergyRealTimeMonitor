@@ -5,7 +5,8 @@
             <button class="btn btn-sm btn-outline-primary me-2" (click)="dp.navigateTo()">To current month</button>     
         </div>
         
-        <ngb-datepicker #dp [(ngModel)]="model" (navigate)="date = $event.next"></ngb-datepicker>
+        <ngb-datepicker #dp [(ngModel)]="model" (navigate)="date = $event.next" (ngModelChange)="onDateChange($event)"
+        ></ngb-datepicker>
         
         <hr/>  
         <div class="">

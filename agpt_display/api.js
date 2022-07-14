@@ -1,9 +1,13 @@
 // Απαραίτητα imports!
 const express = require('express');
+// const cors = C/
 const {Kafka} = require('kafkajs');
 const pg = require('pg');
 const axios = require('axios');
-var app = express();
+const cors = require('cors');
+
+const app = express()
+app.use(cors())  
 
 //Συνάρτηση για sortarisma javascript object
 function compare( a, b ) {
@@ -153,7 +157,7 @@ app.get("/api/GenerationPerType/chart", (req, res, next) => {
 	else {
 
 		//Παίρνουμε τις υπόλοιπες παραμέτρους.
-		var country=req.query.country
+		var country=req.query.country.toLocaleLowerCase();
 		var typeofenergy=req.query.generationType
 		console.log("query =", "SELECT * FROM public." + country + " WHERE public." + country + ".productiontype = " + "\'" + typeofenergy + "\'" + " AND public." + country + ".datetime >= " + "\'" + date_start + "\'" + " AND public." + country + ".datetime <= " + "\'" + date_end + "\';")
 
@@ -202,6 +206,7 @@ app.listen(7081, () => {
 //Στο παρακάτω κώδικα κάνουμε ένα αρχικό GET request στον αντίστοιχο getter στο endpoint getInidata προκειμένου να γίνει η αρχικοποίηση της βάσης
 //με όλα τα δεδομένα που έχει στη βάση του ο getter!
 //Αυτό προφανώς το κάνουμε για το table της κάθε χώρας.
+counter_for_countries = 0;
 for(var i = 0; i < countries.length; i++){
 	url="http://agpt_getter:8081/getIniData/" + countries[i];
 	console.log("url =", url);
@@ -212,7 +217,9 @@ for(var i = 0; i < countries.length; i++){
 		if(datafinal != undefined){
 			if(datafinal.length!=0){
 				//Άμα εν τέλει μας στείλει δεδομένα ο getter τα βάζουμε στη βάση (στο table της αντίστοιχης χώρας)!
-				const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],{table:arr[1].toLowerCase()})
+				const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],
+					{table: countries[counter_for_countries].toLowerCase()}
+				);
 				const query =pgp.helpers.insert(datafinal, cs)
 				db.none(query)
 				.then(()=>{
@@ -221,7 +228,8 @@ for(var i = 0; i < countries.length; i++){
 				.catch(error => {
 					console.log("error is", error)
 				})  		
-			}	
+			}
+			counter_for_countries++;	
 		}
 	})
 }

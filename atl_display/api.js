@@ -3,7 +3,11 @@ const express = require('express');
 const {Kafka} = require('kafkajs');
 const pg = require('pg');
 const axios = require('axios');
-var app = express();
+const cors = require('cors');
+
+const app = express()
+app.use(cors())  
+
 
 //Συνάρτηση για sortarisma javascript object
 function compare( a, b ) {
@@ -159,7 +163,7 @@ app.get("/api/ActualTotalLoad/chart", (req, res, next) => {
 	else {
 
 		//Παίρνουμε τις υπόλοιπες παραμέτρους.
-		var country=req.query.country
+		var country=req.query.country.toLocaleLowerCase();
 		var date=req.query.date
 		console.log("params =", "SELECT * FROM " + country + " WHERE datetime >= " + "\'" + date_start + "\' AND datetime <= " + "\'" + date_end + "\'" + ";")        
 
@@ -207,9 +211,11 @@ app.listen(7082, () => {
 //Στο παρακάτω κώδικα κάνουμε ένα αρχικό GET request στον αντίστοιχο getter στο endpoint getInidata προκειμένου να γίνει η αρχικοποίηση της βάσης
 //με όλα τα δεδομένα που έχει στη βάση του ο getter!
 //Αυτό προφανώς το κάνουμε για το table της κάθε χώρας.
+counter_for_countries = 0;
 for(var i = 0; i < countries.length; i++){
 	url="http://atl_getter:8082/getIniData/" + countries[i];
 	console.log("url =", url);
+	
 
 	//Αξιοποιώντας το axios πραγματοποιούμε το GET request στον αντίστοιχο getter.
 	axios.get(url).then((response) =>{
@@ -220,7 +226,8 @@ for(var i = 0; i < countries.length; i++){
 			if(datafinal.length!=0){
 				
 				//Άμα εν τέλει μας στείλει δεδομένα ο getter τα βάζουμε στη βάση (στο table της αντίστοιχης χώρας)!
-				const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],{table:arr[1].toLowerCase()})
+				console.log(countries[counter_for_countries])
+				const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],{table: countries[counter_for_countries].toLowerCase()})
 				const query =pgp.helpers.insert(datafinal, cs)
 				db.none(query)
 				.then(()=>{
@@ -230,6 +237,8 @@ for(var i = 0; i < countries.length; i++){
 					console.log("error is", error)
 				})  		
 			}	
+			
+			counter_for_countries++;
 		}
 	})
 }	

@@ -81,7 +81,7 @@ export class ChartComponent implements OnInit, OnDestroy {
     { id:42, name:'Russia', code:'RU'}, 
     { id:43, name:'Kosovo', code:'XK'}, 
     { id:44, name:'Armenia', code:'AM'}, 
-  ].sort((a, b) => a.name.localeCompare(b.name));
+  ]; // .sort((a, b) => a.name.localeCompare(b.name));
 
   selectedGenerationType !: number;
   generationTypes = [ 
@@ -105,7 +105,7 @@ export class ChartComponent implements OnInit, OnDestroy {
     {id:18,name:'Fossil Peat'},
     {id:19,name:'Fossil Oil shale'},
     {id:20, name:'Biomass'}, 
-  ].sort((a, b) => a.name.localeCompare(b.name));
+  ]; // .sort((a, b) => a.name.localeCompare(b.name));
 
   selectedCountryFrom !: number;
   selectedCountryTo !: number;
@@ -166,6 +166,11 @@ export class ChartComponent implements OnInit, OnDestroy {
     let blob = new Blob(data);
     
     this.fileSaverService.save(blob, 'data.txt');
+  }
+
+  onDateChange(event: any) { 
+    console.log("Date changed: ", event, this.calendar)
+    this.dataFullForGraph = this.isDataFull();
   }
   onChangeQuantity(event: any) {
     this.dataFullForGraph = this.isDataFull();

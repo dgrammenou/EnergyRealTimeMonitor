@@ -3,7 +3,11 @@ const express = require('express');
 const {Kafka} = require('kafkajs');
 const pg = require('pg'); 
 const axios = require('axios');
-var app = express();
+const cors = require('cors');
+
+const app = express()
+app.use(cors())  
+
 
 //Συνάρτηση για sortarisma javascript object
 function compare( a, b ) {
@@ -161,7 +165,7 @@ app.get("/api/CrossBoarderFlow/chart", (req, res) => {
 	else {
 
 		//Παίρνουμε τις υπόλοιπες παραμέτρους.
-		var country=req.query.country
+		var country=req.query.country.toLocaleLowerCase();
 		var incountry=req.query.incountry
 		var date=req.query.date
         console.log("query =", "SELECT * FROM " + country + " WHERE datetime >= " + "\'" + date_start + "\'" + " AND datetime <= " + "\'" + date_end + "\' AND inareaname = " + "\'" + incountry + "\';")        
@@ -213,6 +217,7 @@ app.listen(7083, () => {
 //Στο παρακάτω κώδικα κάνουμε ένα αρχικό GET request στον αντίστοιχο getter στο endpoint getInidata προκειμένου να γίνει η αρχικοποίηση της βάσης
 //με όλα τα δεδομένα που έχει στη βάση του ο getter!
 //Αυτό προφανώς το κάνουμε για το table της κάθε χώρας.
+counter_for_countries = 0;
 for(var i = 0; i < countries.length; i++){
 	url="http://phf_getter:8083/getIniData/" + countries[i];
 	console.log("url =", url);
@@ -226,7 +231,7 @@ for(var i = 0; i < countries.length; i++){
 			if(datafinal.length!=0){
 				
 				//Άμα εν τέλει μας στείλει δεδομένα ο getter τα βάζουμε στη βάση (στο table της αντίστοιχης χώρας)!
-				const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],{table:arr[1].toLowerCase()})
+				const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],{table:countries[counter_for_countries].toLowerCase()})
 				const query =pgp.helpers.insert(datafinal, cs)
 				db.none(query)
 				.then(()=>{
@@ -236,6 +241,7 @@ for(var i = 0; i < countries.length; i++){
 					console.log("error is", error)
 				})  		
 			}	
+			counter_for_countries++;
 		}
 	})
 }

@@ -29,13 +29,12 @@ function createNewUser(firstname, lastname, email) {
 } 
 
 const express = require('express');
-var cors = require('cors');
+const cors = require('cors');
 
 const app = express()
 app.use(cors())  
 
 const port = 4020;
-
 
 app.get('/api/users/login', (req, res) => {
     const user = req.query;

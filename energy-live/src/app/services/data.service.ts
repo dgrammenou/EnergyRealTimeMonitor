@@ -13,14 +13,14 @@ export class DataService {
 
     dataActualTotalLoad(data: ActualTotalLoad) {
             let params = new HttpParams();
-            params = params.set('date', data.date.getFullYear() + "-" + data.date.getMonth() + "-" + data.date.getDay());
+            params = params.set('date', data.date.getFullYear() + "-" + data.date.getMonth() + "-" + data.date.getDate());
             params = params.set('country', data.country);
 
             return this.httpClient.get<ChartDto>('http://localhost:7082/api/ActualTotalLoad/chart', {params}); 
     }
     dataGenerationPerType(data: GenerationPerType) {
         let params = new HttpParams();
-        params = params.set('date', data.date.getFullYear() + "-" + data.date.getMonth() + "-" + data.date.getDay());
+        params = params.set('date', data.date.getFullYear() + "-" + data.date.getMonth() + "-" + data.date.getDate());
         params = params.set('country', data.country);
         params = params.set('generationType', data.generationType);
 
@@ -28,7 +28,7 @@ export class DataService {
     }
     dataCrossBoarderFlow(data: CrossBoarderFlow) {
         let params = new HttpParams();
-        params = params.set('date', data.date.getFullYear() + "-" + data.date.getMonth() + "-" + data.date.getDay());
+        params = params.set('date', data.date.getFullYear() + "-" + data.date.getMonth() + "-" + data.date.getDate());
         params = params.set('countryFrom', data.countryFrom);
         params = params.set('countryTo', data.countryTo);
 
