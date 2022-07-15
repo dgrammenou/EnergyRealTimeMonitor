@@ -51,7 +51,7 @@ export class DataService {
         return this.httpClient.get<void>('https://paparrigopoulos.com/api/getter/atl/ResetDB');
     }
     resetDbAndCsvATLDisplay() {
-        return this.httpClient.get<void>('https://paparrigopoulos.com/api/display/api/display/atl/ResetDB');
+        return this.httpClient.get<void>('https://paparrigopoulos.com/api/display/atl/ResetDB');
     }
     resetDbAndCsvAGPTGetter() {
         return this.httpClient.get<void>('https://paparrigopoulos.com/api/getter/agpt/ResetDB');
