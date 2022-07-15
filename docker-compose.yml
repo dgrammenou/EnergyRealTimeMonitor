@@ -192,7 +192,7 @@ services:
     ports:
       - "4020:4020"     
     volumes:
-      - ./users.sqlite/:app
+     - ./users/users.sqlite:/app/users.sqlite
 
   energy-live-deploy:
     image: energy-live-deploy
