@@ -314,23 +314,24 @@ const magic_func = async (res) => {
         await lock.acquire();
         console.log("lock =", lock)
         console.log("counter =", counter)
-        ReadCsv(arr_of_agpt_csv[counter])
-        counter++
-        res.status(200).send("New CSV imported\n")
+        if(counter < arr_of_agpt_csv.length){
+                var file = arr_of_agpt_csv[counter];
+                ReadCsv(file)
+                res.status(200).send("New CSV imported\n")
+                counter++;
+        }
+        else{
+                lock.release();
+                res.status(200).send("No more CSVs to import\n");
+        
+        }
 }
 
 //Βοηθητικό endpoint το οποίο χτυπάμε προκειμένου να διαβαστεί - γίνει import στη βάση το επόμενο csv
 app.get("/agpt/ImportNewCsv", (req, res, next) => {
     
-        if(counter<arr_of_agpt_csv.length){
-            magic_func(res);
-            
-        }
-        else{
-    
-            res.status(200).send("No more CSVs to import\n")
-    
-        }
+        magic_func(res);
+        
 })
 
 //endpoint για να γινει reset η βαση

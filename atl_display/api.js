@@ -178,13 +178,13 @@ app.get("/api/ActualTotalLoad/chart", (req, res, next) => {
 		)
 		.then((result) =>{
 
-			console.log("result =", result)
+			// console.log("result =", result)
 			result.sort(compare);
-			console.log("result after sort =", result);
+			// console.log("result after sort =", result);
 			return_dict = {name: "ATL chart", series: [], lastUpdate: "0000-00-00 00:00:00"}
 			return_list = []
 			for(var j =0; j < result.length; j++){
-				console.log("result.updatetime =", result[j].updatetime);
+				// console.log("result.updatetime =", result[j].updatetime);
 				var date_string = result[j].updatetime.toString();
 				var current_date = date_string.replace("T", " ").replace("Z", "");
 				if (return_dict.lastUpdate <= current_date){
