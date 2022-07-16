@@ -230,9 +230,13 @@ app.get("/getData/:countryFrom/to/:countryTo/:dataFrom/:dataTo", (req, res, next
 app.get("/newData/:country", (req, res, next) => {
 	
 	var country=req.params.country.toString();
-  console.log("got a request for new data!");
-  
-	res.status(200).json(New_Data[country]);
+  var get_query=db.any("SELECT * from " + country + ";")
+  .then((result) =>{
+          res.status(200).json(result);
+  })
+  .catch((e) => {
+          res.status(500).send("something went wrong");                
+  });
 
 });	
 

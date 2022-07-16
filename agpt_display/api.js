@@ -6,6 +6,12 @@ const pg = require('pg');
 const axios = require('axios');
 const cors = require('cors');
 
+const Lock1 = require('./lock.js')
+
+var list1 = []
+
+const lock = new Lock1.Lock();
+
 const app = express()
 app.use(cors())  
 
@@ -73,13 +79,15 @@ console.log("Producer Connected!");
 //----------------------------------
 //Παίρνουμε τα μηνύματα που λαμβάνουμε από το topic που έχουμε κάνει subscribe!
 consumer.run({
-	eachMessage: ({ topic, partition, message }) =>  {
+	eachMessage: async ({ topic, partition, message }) =>  {
+		
 		console.log('Received message', {
 			topic,
 			partition,
 			value: message.value.toString()
 		});
 
+		
 		data = {
 			"topic": topic,
 			"partition": parseInt(partition),
@@ -94,27 +102,50 @@ consumer.run({
              
 			url="http://agpt_getter:8081/newData/" + arr[1].toLowerCase();
 			console.log("url =", url);
+			// list1.push(arr[1])
+			
+			
             //Αξιοποιώντας το axios πραγματοποιούμε το GET request στον αντίστοιχο getter.
-			axios.get(url).then((response) =>{
+			axios.get(url).then( async (response) =>{
+				
 				const datafinal = Object.values(response.data);
+				
+				var url = response.config.url.toString();
+				var temp = url.split("//")
+				var temp1 = temp[1].split('/')
+				console.log("temp1 =", temp1)
+				var cntry = temp1[2]	
+
 				//Απαραίτητοι έλεγχοι για τα δεδομένα που λαμβάνουμε!
 				if(datafinal != undefined){
 					if(datafinal.length!=0){
-						//Άμα εν τέλει μας στείλει δεδομένα ο getter τα βάζουμε στη βάση (στο table της αντίστοιχης χώρας)!
-						const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],{table:arr[1].toLowerCase()})
-						const query =pgp.helpers.insert(datafinal, cs)
-						db.none(query)
-						.then(()=>{
-							console.log("all records for display inserted")
-						})
-						.catch(error => {
-							console.log("error is", error)
-						})  		
+						const cs=new pgp.helpers.ColumnSet(['datetime','actualgenerationpertype','actualconsumption','productiontype','updatetime','index'],{table:cntry})
+						
+						db.any("TRUNCATE TABLE " + cntry + ";")
+						.then (() => {
+
+							 //Άμα εν τέλει μας στείλει δεδομένα ο getter τα βάζουμε στη βάση (στο table της αντίστοιχης χώρας)!
+							// const cs=new pgp.helpers.ColumnSet(['datetime','totalloadvalue','updatetime','index'],{table:cntry})
+							const params =pgp.helpers.insert(datafinal,cs)
+							console.log("params =", params);
+							db.none(params)
+							.then(()=>{
+								console.log("all records for display inserted");
+								
+							})
+							.catch(error => {
+								console.log("error is", error);
+							})	
+
+						}).catch((error) => {
+							console.log(error)
+						})		
 					}	
 				}
 			})
 			.catch((error) => {
-				console.log(error)
+				console.log(error);
+				
 			})
         }
 				
@@ -187,7 +218,7 @@ app.get("/api/GenerationPerType/chart", (req, res, next) => {
 				}
 				Object.assign(return_dict.series, return_list);
 				console.log("before sending re result");
-				res.status(200).send(return_dict);	
+				res.status(200).send(return_dict);
 				//Στέλνουμε τα δεδομένα σε όσους τα έχουν ζητήσει/βρίσκονται στην αντίστοιχη λίστα!
 			 	// for(var i=0; i<getData[(req.query.country, req.query.generationType, req.query.date)].length; i++){
 				// 	getData[(req.query.country, req.query.generationType, req.query.date)][i][1].status(200).json(return_dict);

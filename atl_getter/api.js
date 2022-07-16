@@ -158,7 +158,7 @@ function ReadCsv(file){
                 }
         }
 
-            Object.assign(New_Data,data1);//κανουμε copy το dict1 στο New Data
+        //     Object.assign(New_Data,data1);//κανουμε copy το dict1 στο New Data
             
             countryRow_list = []//αρχικοποιουμε εναν πινακα
             counter_for_countries = 0;//αρχικοποιουμε εναν counter για τις χωρες σε 0
@@ -226,8 +226,17 @@ app.get("/getData/:country/:dataFrom/:dataTo", (req, res, next) => {
 app.get("/newData/:country", (req, res, next) => {
 
         var country=req.params.country.toString();
-        console.log("got a request for new data!");
-        res.status(200).json(New_Data[country])
+        var get_query=db.any("SELECT * from " + country + ";")
+        .then((result) =>{
+                console.log("i am sending data for country:", country);
+                console.log(result); 
+                res.status(200).json(result);
+        })
+        .catch((e) => {
+                res.status(500).send("something went wrong");                
+        });
+        // console.log("got a request for new data!");
+        // res.status(200).json(New_Data[country])
 
 });
 

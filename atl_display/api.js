@@ -5,6 +5,13 @@ const pg = require('pg');
 const axios = require('axios');
 const cors = require('cors');
 
+const Lock1 = require('./lock.js');
+const { rmSync } = require('fs');
+
+var list1 = []
+
+const lock = new Lock1.Lock();
+
 const app = express()
 app.use(cors())  
 
@@ -75,7 +82,7 @@ console.log("Producer Connected!");
 //----------------------------------
 //Παίρνουμε τα μηνύματα που λαμβάνουμε από το topic που έχουμε κάνει subscribe!
 consumer.run({
-	eachMessage: ({ topic, partition, message }) => {
+	eachMessage: async ({ topic, partition, message }) => {
 		console.log('Received message', {
 			topic,
 			partition,
@@ -96,30 +103,55 @@ consumer.run({
 
 			url="http://atl_getter:8082/newData/" + arr[1].toLowerCase();
 			console.log("url =", url);
+			// list1.push(arr[1])
 
 			//Αξιοποιώντας το axios πραγματοποιούμε το GET request στον αντίστοιχο getter.
-			axios.get(url).then((response) =>{
+			axios.get(url).then( async (response) =>{
+				console.log("i received data for country:", response.config.url)
+				// console.log(response.data)
 				const datafinal = Object.values(response.data);
-
+				var url = response.config.url
+				var temp = url.split("//")
+				var temp1 = temp[1].split('/')
+				console.log("temp1 =", temp1)
+				var cntry = temp1[2]
 				//Απαραίτητοι έλεγχοι για τα δεδομένα που λαμβάνουμε!
 				if(datafinal != undefined){
 					if(datafinal.length!=0){
+						const cs=new pgp.helpers.ColumnSet(['datetime','totalloadvalue','updatetime','index'],{table:cntry})
+						
+						db.any("TRUNCATE TABLE " + cntry + ";")
+						.then (() => {
 
-						//Άμα εν τέλει μας στείλει δεδομένα ο getter τα βάζουμε στη βάση (στο table της αντίστοιχης χώρας)!
-						const cs=new pgp.helpers.ColumnSet(['datetime','totalloadvalue','updatetime','index'],{table:arr[1].toLowerCase()})
-						const params =pgp.helpers.insert(datafinal,cs)
-						db.none(params)
+							 //Άμα εν τέλει μας στείλει δεδομένα ο getter τα βάζουμε στη βάση (στο table της αντίστοιχης χώρας)!
+							// const cs=new pgp.helpers.ColumnSet(['datetime','totalloadvalue','updatetime','index'],{table:cntry})
+							const params =pgp.helpers.insert(datafinal,cs)
+							console.log("params =", params);
+							db.none(params)
 							.then(()=>{
-								console.log("all records for display inserted")
+								console.log("all records for display inserted");
+								
 							})
 							.catch(error => {
-								console.log("error is", error)
-							})  		
+								console.log("error is", error);
+							})	
+
+						})
+						.catch((error) => {
+							console.log(error)
+						})
+
+                       
+							
+							  
+							
+							// list1.shift();		
 					}
 				}
 			})
 			.catch((error) => {
-				console.log(error)
+				console.log(error);
+				
 			})
 		}
 
