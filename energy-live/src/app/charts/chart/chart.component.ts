@@ -126,7 +126,7 @@ export class ChartComponent implements OnInit, OnDestroy {
       if (this.dataFullForGraph) {
         this.dataFullForGraph = this.isDataFull();
       }
-    }, 5000);
+    }, 2000);
     this.loggingService.getUserData();
   }
   ngOnDestroy(): void { 
