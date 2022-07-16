@@ -2,9 +2,9 @@ const express = require('express');
 const {Kafka} = require('kafkajs');
 const pg = require('pg');
 
-const Lock1 = require('./lock.js')
+const Lock1 = require('./lock.js')//κανουμε require το αρχειο lock.js
 
-const lock = new Lock1.Lock();
+const lock = new Lock1.Lock();//αποθηκευουμε την κλαση Lock που εχουμε κανει export απο το lock.js
 
 const cors = require('cors');
 
@@ -192,7 +192,7 @@ function ReadCsv(file){
             }) 
           }
           if (i === (countries.length -1 )){
-            lock.release();
+            lock.release();//μολις διαβαστει το τρεχoν CSV απελευθερωνουμε το lock για να το παρει το επομενο request σν υπαρχει
           }
 
         }
@@ -257,18 +257,18 @@ app.get("/getIniData/:country", (req, res, next) => {
 });	
 
 const magic_func = async (res) => {
-  await lock.acquire();
+  await lock.acquire();//το request που γινεται παιρνει το lock(μολις αυτο απελευθερωθει)
   console.log("lock =", lock)
   console.log("counter =", counter)
   if(counter < arr_of_ff_csv.length){
-          var file = arr_of_ff_csv[counter];
-          ReadCsv(file)
+          var file = arr_of_ff_csv[counter];//αποθηκευουμε στο file το αντιστοιχο αρχειο
+          ReadCsv(file)//καλειται η ReadCsv για να ξεκινησει το διαβασμα του CSV(που εχει παρει το lock)
           res.status(200).send("New CSV imported\n")
           counter++;
   }
    
   else{
-    lock.release();
+    lock.release();//αν δεν υπαρχει καποιο αλλο csv να διαβαστει απελευθερωνει
     res.status(200).send("No more CSVs to import\n");
   
   }
@@ -283,7 +283,7 @@ app.get("/ff/ImportNewCsv", (req, res, next) => {
 
 //endpoint για να κανουμε reset την βαση
 app.get("/ff/ResetDB", async (req, res, next)  =>  {
-    await lock.acquire();
+    await lock.acquire();//το request που γινεται παιρνει το lock(μολις αυτο απελευθερωθει)
     var query = pgp.helpers.concat([
       'DELETE FROM  public.al',
       'DELETE FROM  public.am',
@@ -340,11 +340,11 @@ app.get("/ff/ResetDB", async (req, res, next)  =>  {
                 current_month[countryRow[3].toLowerCase()]={}
         }
         res.status(200).send("DB cleared and CSV counter set 0!");
-        lock.release();
+        lock.release();//αφου ολοκληρωθει το request απελευθερωνεται το lock
       })
       .catch(error => {
         console.log("error is", error)
-        lock.release();
+        lock.release();//αν εντοπιστει καποιο error απελευθερωνεται παλι το lock
       })
 })
 
