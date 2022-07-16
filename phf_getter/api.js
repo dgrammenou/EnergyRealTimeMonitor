@@ -2,6 +2,10 @@ const express = require('express');
 const {Kafka} = require('kafkajs');
 const pg = require('pg');
 
+const Lock1 = require('./lock.js')
+
+const lock = new Lock1.Lock();
+
 const cors = require('cors');
 
 const app = express()
@@ -243,12 +247,18 @@ app.get("/getIniData/:country", (req, res, next) => {
 
 });	
 
+const magic_func = async () => {
+  await lock.acquire();
+  ReadCsv(arr_of_agpt_csv[counter])
+  counter++
+  lock.release();
+}
+
 //Βοηθητικό endpoint το οποίο χτυπάμε προκειμένου να διαβαστεί - γίνει import στη βάση το επόμενο csv
 app.get("/ff/ImportNewCsv", (req, res, next) => {
 
   if(counter<arr_of_ff_csv.length){
-      ReadCsv(arr_of_ff_csv[counter])
-      counter++
+      magic_func();
       res.status(200).send("New CSV imported\n")
   }
   else{
