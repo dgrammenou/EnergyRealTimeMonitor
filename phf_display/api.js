@@ -210,7 +210,7 @@ app.get("/api/CrossBoarderFlow/chart", (req, res) => {
 			return_list = []
 			for(var j =0; j < result.length; j++){
 				// console.log("result.updatetime =", result[j].updatetime);
-				var date_string = result[j].updatetime.toString();
+				var date_string = new Date(result[j].updatetime.toString()).toISOString();
 				var current_date = date_string.replace("T", " ").replace("Z", "");
 				if (return_dict.lastUpdate <= current_date){
 					return_dict.lastUpdate = current_date;
@@ -218,6 +218,9 @@ app.get("/api/CrossBoarderFlow/chart", (req, res) => {
 				return_list[j] = {name: j, value:result[j].flowvalue};
 			}
 			Object.assign(return_dict.series, return_list);
+			if(result.lenth != 0){
+				return_dict.lastUpdate = new Date(return_dict.lastUpdate).toUTCString();
+			}
 			res.status(200).send(return_dict);		
 			//Στέλνουμε τα δεδομένα σε όσους τα έχουν ζητήσει/βρίσκονται στην αντίστοιχη λίστα!
 			// for(var i=0; i<getData[(req.query.country, req.query.generationType, req.query.date)].length; i++){
