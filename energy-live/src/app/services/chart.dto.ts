@@ -1,7 +1,7 @@
 export interface ChartDto {
     name: string;
     series: ChartDataDto[];
-    latestUpdate: string;
+    lastUpdate: string;
 }
 
 export interface ChartDataDto {
