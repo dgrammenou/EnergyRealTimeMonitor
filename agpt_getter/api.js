@@ -240,9 +240,13 @@ function ReadCsv(file){
 
                         })
                         .catch(error => {
-                                console.log("error is", error)
+                                console.log("error is", error);
+                                
                         }) 
-             } 
+                }
+                if (i === (countries.length -1 )){
+                        lock.release();
+                } 
                
           }
         
@@ -306,19 +310,21 @@ app.get("/getIniData/:country", (req, res, next) => {
         });
 });
 
-const magic_func = async () => {
+const magic_func = async (res) => {
         await lock.acquire();
+        console.log("lock =", lock)
+        console.log("counter =", counter)
         ReadCsv(arr_of_agpt_csv[counter])
         counter++
-        lock.release();
+        res.status(200).send("New CSV imported\n")
 }
 
 //Βοηθητικό endpoint το οποίο χτυπάμε προκειμένου να διαβαστεί - γίνει import στη βάση το επόμενο csv
 app.get("/agpt/ImportNewCsv", (req, res, next) => {
     
         if(counter<arr_of_agpt_csv.length){
-            magic_func();
-            res.status(200).send("New CSV imported\n")
+            magic_func(res);
+            
         }
         else{
     
@@ -328,8 +334,8 @@ app.get("/agpt/ImportNewCsv", (req, res, next) => {
 })
 
 //endpoint για να γινει reset η βαση
-app.get("/agpt/ResetDB", (req, res, next) => {
-  
+app.get("/agpt/ResetDB", async (req, res, next) => {
+        await lock.acquire();
         var query = pgp.helpers.concat([
                 'DELETE FROM  public.al',
                 'DELETE FROM  public.am',
@@ -385,11 +391,13 @@ app.get("/agpt/ResetDB", (req, res, next) => {
                         countryRow = countryRow_.split(",");
                         current_month[countryRow[3].toLowerCase()]={}
                 }
-                res.status(200).send("DB cleared and CSV counter set 0!")
+                res.status(200).send("DB cleared and CSV counter set 0!");
+                lock.release();
         })
         .catch(error => {
                 console.log("error is", error);
-                res.status(500).send("Something went wrong!")
+                res.status(500).send("Something went wrong!");
+                lock.release();
         })
 })
 

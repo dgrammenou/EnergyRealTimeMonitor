@@ -163,6 +163,7 @@ function ReadCsv(file){
             countryRow_list = []//αρχικοποιουμε εναν πινακα
             counter_for_countries = 0;//αρχικοποιουμε εναν counter για τις χωρες σε 0
             for(var i=0;i<countries.length;i++){
+                
                 countryRow_ = countries[i].toString();//για καθε χωρα μετατρεπουμε το row της σε string
                 countryRow = countryRow_.split(",");//κανουμε το row split με κομμα
                 const countrydata=data1[countryRow[3].toLowerCase()]//παιρνουμε το columnset για το συγκεκριμενο mapcode και το αποθηκευουμε στο countrydata
@@ -183,10 +184,15 @@ function ReadCsv(file){
                                         }]
                                 });
                                 counter_for_countries += 1;
+                                
                         })
                         .catch(error => {
-                                console.log("error is", error)
+                                console.log("error is", error);
+                                
                         }) 
+                }
+                if (i === (countries.length -1 )){
+                        lock.release();
                 }
                
           }     
@@ -244,30 +250,29 @@ app.get("/getIniData/:country", (req, res, next) => {
         });
 });
 
-const magic_func = async () => {
+const magic_func = async (res) => {
         await lock.acquire();
-        ReadCsv(arr_of_agpt_csv[counter])
+        console.log("lock =", lock)
+        console.log("counter =", counter)
+        ReadCsv(arr_of_atl_csv[counter])
         counter++
-        lock.release();
+        res.status(200).send("New CSV importeddd\n");
 }
 
 //Βοηθητικό endpoint το οποίο χτυπάμε προκειμένου να διαβαστεί - γίνει import στη βάση το επόμενο csv
 app.get("/atl/ImportNewCsv", (req, res, next) => {
  
         if(counter<arr_of_atl_csv.length){
-            magic_func();
-            res.status(200).send("New CSV imported\n")
+            magic_func(res);
         }
         else{
-    
             res.status(200).send("No more CSVs to import\n")
-    
         }
 })
 
 //endpoint για να κανουμε reset την βαση
-app.get("/atl/ResetDB", (req, res, next) => {
-  
+app.get("/atl/ResetDB", async (req, res, next) => {
+        await lock.acquire();
         var query = pgp.helpers.concat([
                 'DELETE FROM  public.al',
                 'DELETE FROM  public.am',
@@ -323,10 +328,12 @@ app.get("/atl/ResetDB", (req, res, next) => {
                         countryRow = countryRow_.split(",");
                         current_month[countryRow[3].toLowerCase()]={}
                 }
-                res.status(200).send("DB cleared and CSV counter set 0!")
+                res.status(200).send("DB cleared and CSV counter set 0!");
+                lock.release();
         })
         .catch(error => {
-                console.log("error is", error)
+                console.log("error is", error);
+                lock.release();
         })
 })
 

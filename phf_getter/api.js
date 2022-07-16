@@ -184,10 +184,15 @@ function ReadCsv(file){
                 
               });
               counter_for_countries += 1;
+              
             })
             .catch(error => {
-              console.log("error is", error)
+              console.log("error is", error);
+              
             }) 
+          }
+          if (i === (countries.length -1 )){
+            lock.release();
           }
 
         }
@@ -247,19 +252,21 @@ app.get("/getIniData/:country", (req, res, next) => {
 
 });	
 
-const magic_func = async () => {
+const magic_func = async (res) => {
   await lock.acquire();
-  ReadCsv(arr_of_agpt_csv[counter])
+  console.log("lock =", lock)
+  console.log("counter =", counter)
+  ReadCsv(arr_of_ff_csv[counter])
   counter++
-  lock.release();
+  res.status(200).send("New CSV imported\n")
 }
 
 //Βοηθητικό endpoint το οποίο χτυπάμε προκειμένου να διαβαστεί - γίνει import στη βάση το επόμενο csv
 app.get("/ff/ImportNewCsv", (req, res, next) => {
 
   if(counter<arr_of_ff_csv.length){
-      magic_func();
-      res.status(200).send("New CSV imported\n")
+      magic_func(res);
+      
   }
   else{
 
@@ -269,8 +276,8 @@ app.get("/ff/ImportNewCsv", (req, res, next) => {
 })
 
 //endpoint για να κανουμε reset την βαση
-app.get("/ff/ResetDB", (req, res, next) => {
-  
+app.get("/ff/ResetDB", async (req, res, next)  =>  {
+    await lock.acquire();
     var query = pgp.helpers.concat([
       'DELETE FROM  public.al',
       'DELETE FROM  public.am',
@@ -326,10 +333,12 @@ app.get("/ff/ResetDB", (req, res, next) => {
                 countryRow = countryRow_.split(",");
                 current_month[countryRow[3].toLowerCase()]={}
         }
-        res.status(200).send("DB cleared and CSV counter set 0!")
+        res.status(200).send("DB cleared and CSV counter set 0!");
+        lock.release();
       })
       .catch(error => {
         console.log("error is", error)
+        lock.release();
       })
 })
 
