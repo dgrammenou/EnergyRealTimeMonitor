@@ -41,8 +41,8 @@ export class DataService {
     dataCrossBoarderFlow(data: CrossBoarderFlow) {
         let params = new HttpParams();
         params = params.set('date', data.date.getFullYear() + "-" + data.date.getMonth() + "-" + data.date.getDate());
-        params = params.set('countryFrom', data.countryFrom);
-        params = params.set('countryTo', data.countryTo);
+        params = params.set('country', data.countryFrom);
+        params = params.set('incountry', data.countryTo);
 
         return this.httpClient.get<ChartDto>('https://paparrigopoulos.com/api/display/CrossBoarderFlow/chart', {params});  
     } 
