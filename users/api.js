@@ -8,10 +8,10 @@ const options = {
 const knex = require('knex')(options);
 
 knex.schema.createTableIfNotExists('user', (table) => {
-    table.increments('id')
+    table.increments('id').primary()
     table.string('firstname')
     table.string('lastname')
-    table.string('email').unique()
+    table.string('email')
     table.integer('daysLeft')   
 }).then(() => console.log("table created"))
     .catch((err) => { console.log(err); }) 
@@ -88,6 +88,23 @@ app.get('/api/users/extend', (req, res) => {
 
 })
 
+app.get('/api/updateSubscriptions', (req, res) => {
+    var users_external;
+    var counter = 0;
+    knex.from('user').select("*").then((users) => {
+        users_external = users;
+        console.log(users_external);
+        for(var i = 0; i < users_external.length; i++) {
+            users_external[i].daysLeft = Math.max(users_external[i].daysLeft - 1, 0);
+            knex.from('user').update(users_external[counter++]).then(() => {
+                console.log('update subscription');
+            })
+            .catch((err) => { console.log( err);}) 
+        }
+    
+    })
+    res.send(200);   
+})
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
