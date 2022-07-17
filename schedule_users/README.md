@@ -1,0 +1,2 @@
+# Schedule users
+Αυτός το microservice είναι ουσιαστικά ένα thread το οποίο τρέχει μέσα στον container προκειμένου να χτυπάει ένα request στο users microsevice και να μειώνεται κατά 1 τις ημέρες για ανανέωση συνδρομής. 

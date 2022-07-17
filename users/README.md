@@ -1,4 +1,5 @@
 # This is a Users microservice. 
 
-## It handles Expirations and Extend Plan
+Σε αυτό το microservice κρατάμε track των συνδρομών και τον χρηστών που χρησιμοποιούν την εφαρμογή. 
+Έχει μια δικιά του βάση σε sqlite3. 
 
