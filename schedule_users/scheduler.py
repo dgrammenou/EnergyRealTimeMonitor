@@ -1,7 +1,7 @@
 import threading
 import requests
 
-sec = 5 # 86400 # seconds of a day
+sec = 86400 # seconds of a day
 def func(): 
     requests.get("http://paparrigopoulos.com:4020/api/updateSubscriptions")
     
