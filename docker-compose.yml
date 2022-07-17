@@ -200,9 +200,9 @@ services:
     ports:
       - "6543:6543"
   
-  schedule-users:
-    image: schedule-users
-    hostname: schedule-users
+  schedule_users:
+    image: schedule_users
+    hostname: schedule_users
     depends_on: 
       - users
 

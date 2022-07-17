@@ -1,3 +1,4 @@
+//Απαραίτητα require!
 const express = require('express');
 const {Kafka} = require('kafkajs');
 const pg = require('pg');
