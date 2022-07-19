@@ -3,7 +3,13 @@
 ## TEAM (23)
   
 Παρακάτω περιγράφουμε την δομή του project μας:
-Αρχικά, έχουμε φτιάξει 8 microservices, τρία για τους getters-agpt getter (φάκελος: agpt_getter),atl getter (φάκελος: atl_getter),ff getter (φάκελος: phf_getter) -(γραμμένα σε Postgres),τρία για τους display-agpt display (φάκελος: agpt_display),atl display (φάκελος: atl_display), ff display (φάκελος: ff_display) -(γραμμένα και αυτά σε postgres), ένα για τους users (φάκελος: users) και τέλος ένα για το management των subscriptions των users (φάκελος: schedule_users).Η επικοινωνία μεταξύ των getter microservices και display microservices γίνεται μέσω Kafka (messaging).Αυτό που κάνουν τα microservices του getter είναι να διαβάζουν τα CSVs και να αποθηκεύουν τα δεδομένα στην βάση τους(η οποία αποτελείται σε καθένα απο αυτά απο 44 tables,τόσα όσες είναι και οι χώρες).Όποτε ένα microservice του getter διαβάσει νέα δεδομένα κάνει publish στο αντίστοιχο topic στο Kafka οτι έχει νέα δεδομένα.Τότε το αντίστοιχο microservice του display θα πρέπει να χτυπήσει το κατάλληλο api για να πάρει αυτά τα καινούρια δεδομένα και να τα αποθηκεύσει στην βάση του(η οποία αποτελείται σε καθένα απο αυτά απο 44 tables,τόσα όσες είναι και οι χώρες).Τα display microservices επικοινωνούν με το frontend(το οποίο είναι γραμμένο σε Αngular).Όσον αφορά το microservice των users φτιάχτηκε για να διαχειρίζεται τις συνδρομές των διάφορων users ενώ το microservice των subscriptions φτιάχτηκε προκειμένου να μειώνεται ανά μία ημέρα το Expiration Date του κάθε user.
+Αρχικά, έχουμε φτιάξει 9 microservices, τρία για τους getters: agpt getter (φάκελος: agpt_getter),atl getter (φάκελος: atl_getter),ff getter (φάκελος: phf_getter) -(γραμμένα σε Postgres),τρία για τους display-agpt display (φάκελος: agpt_display),atl display (φάκελος: atl_display), ff display (φάκελος: ff_display) -(γραμμένα και αυτά σε postgres), ένα όπου γίνεται deploy το frontend με server side rendering, ένα για τους users (φάκελος: users) και τέλος ένα για το management των subscriptions των users (φάκελος: schedule_users).
+
+Η επικοινωνία μεταξύ των getter microservices και display microservices γίνεται μέσω Kafka (messaging). Αυτό που κάνουν τα microservices του getter είναι να διαβάζουν τα CSVs και να αποθηκεύουν τα δεδομένα στην βάση τους(η οποία αποτελείται σε καθένα απο αυτά απο 44 tables,τόσα όσες είναι και οι χώρες). Όποτε ένα microservice του getter διαβάσει νέα δεδομένα κάνει publish στο αντίστοιχο topic στο Kafka οτι έχει νέα δεδομένα.Τότε το αντίστοιχο microservice του display θα πρέπει να χτυπήσει το κατάλληλο api για να πάρει αυτά τα καινούρια δεδομένα και να τα αποθηκεύσει στην βάση του(η οποία αποτελείται σε καθένα απο αυτά απο 44 tables,τόσα όσες είναι και οι χώρες).
+
+Τα display microservices επικοινωνούν με το frontend(το οποίο είναι γραμμένο σε Αngular). Ουσιαστικά, επικοινωνεί με όλα τα microservices προκειμένου να παίρνει τις πληροφορίες για τα διαγράμματα και το expiration date του χρήστη. Επιπλέον στέλνει κάθε 2 δευτερόλεπτα νέο request ανανέωσης δεδομένων με αποτέλεσμα να είναι up to date. Υπάρχουν κουμπιά τα οποία κάνουν Reset Db, Import Db, download chart as an svg, download chart's data. Τo visual κομμάτι γίνεται μέσω `@swimlane/ngx-charts`. 
+
+Όσον αφορά το microservice των users φτιάχτηκε για να διαχειρίζεται τις συνδρομές των διάφορων users ενώ το microservice των subscriptions φτιάχτηκε προκειμένου να μειώνεται ανά μία ημέρα το Expiration Date του κάθε user.
 
 Για λόγους modularity επίσης βάλαμε και τις βάσεις του κάθε microservice σε docker container (εκτός από το users που έχει τη βάση στο ίδιο docker container και εκτός από το schedule_users που δεν χρειάζεται βάση)! 
 
@@ -17,7 +23,7 @@ https://paparrigopoulos.com/
   
 
 Ωστόσο εάν είναι επιθυμητό το να test-αριστεί η εφαρμογή locally (σε Unix OS και μόνο) τα απαραίτητα είναι:
-
+    
 - Docker + docker-compose
 - Kafka + kafkacat 
 
