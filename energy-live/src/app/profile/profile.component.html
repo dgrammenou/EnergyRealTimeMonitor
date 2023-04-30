@@ -1,0 +1,29 @@
+<div class="container w-50 my-4"> 
+    <h1 class="mb-5">Profile</h1>
+    <div class="form-group">
+        <label>First Name</label>
+        <input id="firstname" type="text" class="form-control" [value]="socialUser?.firstName" id="firstname" readonly>
+    </div>
+    <div class="form-group my-2">
+        <label>Last Name</label>
+        <input id="lastname" type="text" class="form-control" [value]="socialUser?.lastName" id="lastname" readonly>
+    </div>
+    <div class="form-group my-2">
+        <label>Email</label>
+        <input id="email" type="text" class="form-control" [value]="socialUser?.email" id="email" readonly>
+    </div> 
+
+    <div id="down" class="form-group my-4 flex d-flex justify-content-between border px-3 py-3" style="background-color: rgb(184, 184, 194)">
+        <div *ngIf="loggingService.user | async as user">
+            Days Left: <input id="daysleft" class="mx-3" type="number" min="0" [(ngModel)]="user.daysLeft" disabled="true">
+        </div>      
+        <div>
+            Extend By (days): <input id="extend" class="mx-3" type="number" min="0" [(ngModel)]="extendDays">
+        </div>  
+    </div>
+    <div class="buttons d-flex justify-content-center my-2" style="gap: 1rem" *ngIf="extendDays > 0">
+        <button class="btn btn-primary px-4 py-2" (click)="onSave()">Save</button> 
+        <button class="btn btn-danger px-4 py-2" (click)="onCancel()">Cancel</button>
+    </div>
+     
+</div>

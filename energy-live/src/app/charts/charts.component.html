@@ -1,0 +1,40 @@
+<div class="row h-50 mx-5">
+    <div class="col">
+        <div class="card">
+            <div id="wraper" class="overflow-auto">
+                <app-chart *ngFor="let chart of charts"></app-chart>
+                    
+                <button 
+                    class="btn no-button justify-content-center custom-button" 
+                    (click)="onAddChart()" 
+                    style="position:relative; left: 48%; width: 90px"
+                >
+                    <app-icon icon="blue-add-button.svg"></app-icon>
+                </button>
+                
+            </div> 
+        </div>
+    </div>
+    
+</div>
+
+
+<div class="bottom d-flex justify-content-evenly mb-5 overflow-hidden">
+    <div class="" style="width: 70%;"> 
+        <hr class="my-b"styles="margin-bottom: 15px;">
+        <div class="d-flex justify-content-evenly" style="margin-right: 5%">
+            <div >
+                <button class="btn no-button my-b" >Service Status: Live</button>
+            </div>
+            <div *ngIf="loggingService.user | async as user">
+                <button class="btn no-button my-b">Days Left: {{user.daysLeft}}</button>
+            </div>
+            <div >
+                <button class="btn router my-b" routerLink="/profile">Extend Plan</button>
+            </div>
+            <div >
+                <button class="btn router my-b" routerLink="/about">About</button>
+            </div>
+        </div>
+    </div> 
+</div>

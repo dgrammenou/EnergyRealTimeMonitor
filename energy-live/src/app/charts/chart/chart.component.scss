@@ -1,0 +1,16 @@
+.bottom {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.no-button:hover, .no-button:active, .no-button:focus {
+    cursor: default;
+    outline: none !important;
+    box-shadow: none;
+}
+
+.router:hover {
+    box-shadow: green;
+    border: 1px solid green;
+}

@@ -1,0 +1,289 @@
+version: '2.1'
+
+services:
+  zoo1:
+    image: zookeeper:3.4.9
+    hostname: zoo1
+    ports:
+      - "2181:2181"
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_PORT: 2181
+      ZOO_SERVERS: server.1=zoo1:2888:3888
+    volumes:
+      - ./zk-single-kafka-multiple/zoo1/data:/data
+      - ./zk-single-kafka-multiple/zoo1/datalog:/datalog
+
+  kafka1:
+    image: confluentinc/cp-kafka:5.5.0
+    hostname: kafka1
+    ports:
+      - "9092:9092"
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka1:19092,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
+      KAFKA_BROKER_ID: 1
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1  
+    volumes:
+      - ./zk-single-kafka-multiple/kafka1/data:/var/lib/kafka/data
+    depends_on:
+      - zoo1
+        ##healthcheck:
+      #test: ["CMD-SHELL", "./kafka-topics.sh --bootstrap-server=127.0.0.1:9092 --topic maria --describe"]
+      ##test: ["CMD-SHELL", "kafkacat -b 127.0.0.1:9092 -t maria"]
+      ##interval: 5s
+      ##timeout: 100s
+      ##retries: 150
+        
+
+  kafka2:
+    image: confluentinc/cp-kafka:5.5.0
+    hostname: kafka2
+    ports:
+      - "9093:9093"
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka2:19093,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9093
+        #KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+        #KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
+      KAFKA_BROKER_ID: 2
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1  
+    volumes:
+      - ./zk-single-kafka-multiple/kafka2/data:/var/lib/kafka/data
+    depends_on:
+      - zoo1
+        ##healthcheck:
+      ##test: ["CMD-SHELL", "./kafka-topics.sh --bootstrap-server=127.0.0.1:9093 --topic maria --describe"]
+      ##test: ["CMD-SHELL", "kafkacat -b 127.0.0.1:9093 -t maria"]
+      ##interval: 5s
+      ##timeout: 100s
+      ##retries: 150
+        
+
+
+  kafka3:
+    image: confluentinc/cp-kafka:5.5.0
+    hostname: kafka3
+    ports:
+      - "9094:9094"
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka3:19094,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
+      KAFKA_BROKER_ID: 3
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1  
+    volumes:
+      - ./zk-single-kafka-multiple/kafka3/data:/var/lib/kafka/data
+    depends_on:
+      - zoo1
+
+        ##healthcheck:
+      ##test: ["CMD-SHELL", "./kafka-topics.sh --bootstrap-server=127.0.0.1:9094 --topic maria --describe"]
+      ##test: ["CMD-SHELL", "kafkacat -b 127.0.0.1:9094 -t maria"]
+      ##interval: 5s
+      ##timeout: 100s
+      ##retries: 150      
+     
+  
+  agpt_display: 
+    image: agpt_display
+    hostname: agpt_display
+    ports:
+      - "7081:7081" 
+    volumes:
+      - ./Countriescsv:/Countriescsv
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+      - atl_getter  
+
+  agpt_getter: 
+    image: agpt_getter
+    hostname: agpt_getter
+    ports:
+      - "8081:8081"    
+    volumes:
+      - ./Countriescsv:/Countriescsv
+      - ./AGPTfinalCsv:/AGPTfinalCsv  
+    extra_hosts:
+      - "host.docker.internal:host-gateway"    
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3  
+
+  atl_display: 
+    image: atl_display
+    hostname: atl_display
+    ports:
+      - "7082:7082"
+    volumes:
+      - ./Countriescsv:/Countriescsv
+    extra_hosts:
+      - "host.docker.internal:host-gateway"    
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+      - atl_getter        
+
+  atl_getter: 
+    image: atl_getter
+    hostname: atl_getter
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./Countriescsv:/Countriescsv
+      - ./ATLfinalCsv:/ATLfinalCsv
+    extra_hosts:
+      - "host.docker.internal:host-gateway"    
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3 
+
+  phf_display: 
+    image: phf_display
+    hostname: phf_display
+    ports:
+      - "7083:7083"
+    volumes:
+      - ./Countriescsv:/Countriescsv
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3 
+      - phf_getter  
+
+  phf_getter: 
+    image: phf_getter
+    hostname: phf_getter
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./Countriescsv:/Countriescsv
+      - ./FFfinalCsv:/FFfinalCsv
+    extra_hosts:
+      - "host.docker.internal:host-gateway"    
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+
+  users:
+    image: users
+    hostname: users
+    ports:
+      - "4020:4020"     
+    volumes:
+     - ./users/users.sqlite:/app/users.sqlite
+
+  energy-live-deploy:
+    image: energy-live-deploy
+    hostname: energy-live-deploy     
+    ports:
+      - "6543:6543"
+  
+  schedule_users:
+    image: schedule_users
+    hostname: schedule_users
+    depends_on: 
+      - users
+
+##databases:
+  agpt_display_db:
+    image: postgres
+    hostname: agpt_display_db
+    ports: 
+      - "5432:5432"       
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "Dd2502!.."
+      POSTGRES_DB: "displayforagpt"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+        - ./postgres_data/agpt_display_db:/var/lib/postgresql/data/pgdata
+
+  atl_display_db:
+    image: postgres
+    hostname: atl_display_db
+    ports: 
+      - "5433:5432"       
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "Dd2502!.."
+      POSTGRES_DB: "displayforatl"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+        - ./postgres_data/atl_display_db:/var/lib/postgresql/data/pgdata
+
+  phf_display_db:
+    image: postgres
+    hostname: phf_display_db
+    ports: 
+      - "5434:5432"       
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "Dd2502!.."
+      POSTGRES_DB: "displayforff"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+        - ./postgres_data/phf_display_db:/var/lib/postgresql/data/pgdata
+
+  agpt_getter_db:
+    image: postgres
+    hostname: agpt_getter_db
+    ports: 
+      - "5435:5432"       
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "Dd2502!.."
+      POSTGRES_DB: "getterforagpt"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+        - ./postgres_data/agpt_getter_db:/var/lib/postgresql/data/pgdata
+
+  atl_getter_db:
+    image: postgres
+    hostname: atl_getter_db
+    ports: 
+      - "5436:5432"       
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "Dd2502!.."
+      POSTGRES_DB: "getterforatl"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+        - ./postgres_data/atl_getter_db:/var/lib/postgresql/data/pgdata
+
+  phf_getter_db:
+    image: postgres
+    hostname: phf_getter_db
+    ports: 
+      - "5437:5432"       
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "Dd2502!.."
+      POSTGRES_DB: "getterforff"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+        - ./postgres_data/phf_getter_db:/var/lib/postgresql/data/pgdata                        
+
+        
+

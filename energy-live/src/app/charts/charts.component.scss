@@ -1,0 +1,27 @@
+.my-b {
+    position: absolute;
+    bottom: 0;
+    // width: 100%;
+    margin-bottom: 10px;  
+    justify-content: space-between;
+}
+
+.no-button:hover, .no-button:active, .no-button:focus {
+    cursor: default;
+    outline: none !important;
+    box-shadow: none;
+}
+
+.router:hover {
+    box-shadow: green;
+    border: 1px solid green;
+}
+  
+.custom-button:hover {
+    border-radius: 5px;
+    background-color: rgb(70, 70, 248);
+}
+
+#wraper {
+    max-height: 75vh;
+}
